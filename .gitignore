@@ -1,0 +1,17 @@
+# data are public and downloaded by scripts/download_binance.py
+data/raw/
+data/*.log
+__pycache__/
+*.pyc
+.pytest_cache/
+# LaTeX build artefacts
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.blg
+paper/*.synctex.gz
+paper/build*.log
+paper/arxiv_build/
+*.log

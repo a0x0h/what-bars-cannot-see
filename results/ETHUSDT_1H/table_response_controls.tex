@@ -1,0 +1,27 @@
+\begin{tabular}{rllrrrr}
+\toprule
+k & spec & regressor & beta_bps & t & n & r2_% \\
+\midrule
+1 & (1) taker & taker & 0.098 & 0.333 & 41977 & 0.000 \\
+1 & (2) + bar return & taker & -0.147 & -0.447 & 41977 & 0.006 \\
+1 & (3) + lagged returns, 24h momentum & taker & -0.127 & -0.385 & 41977 & 0.013 \\
+1 & (4) + volume, volatility, lagged taker & taker & 0.001 & 0.003 & 41976 & 0.019 \\
+1 & (5) 1m BVC alone & bvc_1m & 0.328 & 0.898 & 41977 & 0.002 \\
+1 & (6) taker vs 1m BVC & taker & -0.122 & -0.351 & 41977 & 0.002 \\
+1 & (6) taker vs 1m BVC & bvc_1m & 0.396 & 0.910 & 41977 & 0.002 \\
+2 & (1) taker & taker & -0.531 & -1.136 & 41975 & 0.003 \\
+2 & (2) + bar return & taker & -0.794 & -1.545 & 41975 & 0.006 \\
+2 & (3) + lagged returns, 24h momentum & taker & -0.752 & -1.448 & 41975 & 0.017 \\
+2 & (4) + volume, volatility, lagged taker & taker & -0.815 & -1.698 & 41974 & 0.018 \\
+2 & (5) 1m BVC alone & bvc_1m & -0.225 & -0.426 & 41975 & 0.000 \\
+2 & (6) taker vs 1m BVC & taker & -0.587 & -1.070 & 41975 & 0.003 \\
+2 & (6) taker vs 1m BVC & bvc_1m & 0.101 & 0.162 & 41975 & 0.003 \\
+4 & (1) taker & taker & 0.548 & 0.762 & 41973 & 0.001 \\
+4 & (2) + bar return & taker & 0.207 & 0.255 & 41973 & 0.004 \\
+4 & (3) + lagged returns, 24h momentum & taker & 0.236 & 0.289 & 41973 & 0.012 \\
+4 & (4) + volume, volatility, lagged taker & taker & 0.078 & 0.110 & 41972 & 0.017 \\
+4 & (5) 1m BVC alone & bvc_1m & 0.243 & 0.313 & 41973 & 0.000 \\
+4 & (6) taker vs 1m BVC & taker & 0.598 & 0.677 & 41973 & 0.002 \\
+4 & (6) taker vs 1m BVC & bvc_1m & -0.090 & -0.094 & 41973 & 0.002 \\
+\bottomrule
+\end{tabular}

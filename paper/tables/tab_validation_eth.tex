@@ -1,0 +1,27 @@
+\begin{tabular}{lrrrr}
+\toprule
+ & Pearson & Spearman & Same sign & $N$\\
+\midrule
+\multicolumn{5}{l}{\emph{Panel A. Signed order flow: proxy vs.\ observed taker imbalance}}\\
+BVC, 1h bars, per hour & 0.487 & 0.532 & 0.708 & 42,316\\
+BVC, 1h bars, 4h sums & 0.470 & 0.530 & 0.708 & 42,310\\
+BVC, 1h bars, 24h sums & 0.513 & 0.561 & 0.720 & 42,270\\
+BVC, 1m bars summed to 1h & 0.556 & 0.605 & 0.735 & 42,359\\
+Tick rule, 1h bars, per hour & 0.432 & 0.418 & 0.708 & 42,357\\
+\midrule
+\multicolumn{5}{l}{\emph{Panel B. Price impact and volatility}}\\
+Kyle $\lambda$ (48h): BVC vs.\ observed flow & 0.440 & 0.503 & -- & 41,978\\
+log GK vol (1h bars) vs.\ log RV (1m), 24h & 0.987 & 0.984 & -- & 41,978\\
+\midrule
+\multicolumn{5}{l}{\emph{Panel C. Information ceiling of return-based classifiers (out-of-sample $R^2$)}}\\
+ & BVC raw & BVC rescaled & Any $f(z)$ & $N$\\
+1h bars & \ensuremath{-}8.868 & 0.218 & 0.222 & 21,158\\
+1m bars & \ensuremath{-}0.153 & 0.276 & 0.286 & 1,270,544\\
+\midrule
+\multicolumn{5}{l}{\emph{Panel D. Spread estimators (one tick $=$ 0.043 bps)}}\\
+ & Median (bps) & Mean (bps) & Share $=0$ & Corr.\ log RV\\
+Corwin-Schultz (24h mean) & 20.7 & 23.2 & 0.0\% & 0.85\\
+Abdi-Ranaldo (24h) & 0.0 & 11.1 & 54.7\% & 0.61\\
+Roll (48h) & 17.6 & 24.0 & 40.6\% & 0.52\\
+\bottomrule
+\end{tabular}

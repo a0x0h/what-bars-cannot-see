@@ -1,0 +1,147 @@
+\section{Feature definitions}\label{app:features}
+
+\begin{table}[H]
+\centering\caption{Feature definitions}\label{tab:features}
+\footnotesize
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{2.1cm}p{8.4cm}}
+\toprule
+Feature & Set & Definition (bar $t$; $r$ log return, $V$ volume, $B$ taker-buy volume, $C,H,L,O$ prices)\\
+\midrule
+\multicolumn{3}{l}{\emph{Spread and price impact}}\\
+cs\_spread\_24 & MS$_{\text{proxy}}$ & 24h mean of the two-bar \citet{corwin2012} estimator\\
+ar\_spread\_24 & MS$_{\text{proxy}}$ & $\sqrt{\max(0,\overline{4(c_{t-1}-\eta_{t-1})(c_{t-1}-\eta_t)})}$ over 24h, $\eta=(\log H+\log L)/2$ \citep{abdi2017}\\
+roll\_spread\_48 & MS$_{\text{proxy}}$ & $2\sqrt{\max(0,-\operatorname{cov}(r_t,r_{t-1}))}$ over 48h \citep{roll1984}\\
+amihud\_24 & MS$_{\text{proxy}}$ & log of 24h mean of $|r_t|/(C_tV_t)$ \citep{amihud2002}\\
+sqrt\_impact\_24 & MS$_{\text{proxy}}$ & log of 24h mean of $|r_t|/\sqrt{V_t/\bar V_{168}}$\\
+\multicolumn{3}{l}{\emph{Order flow, BVC proxy (signed volume $S_t=(2\Phi(r_t/\hat\sigma_{168})-1)V_t$)}}\\
+ofi\_1, ofi\_24 & MS$_{\text{proxy}}$, Flow$_{\text{BVC}}$ & $S_t/\bar V_{168}$; $\sum_{24}S/\sum_{24}V$\\
+ofi\_accel & MS$_{\text{proxy}}$, Flow$_{\text{BVC}}$ & 6h imbalance minus 24h imbalance\\
+vpin\_24 & MS$_{\text{proxy}}$, Flow$_{\text{BVC}}$ & $\sum_{24}|S|/\sum_{24}V$\\
+kyle\_lambda\_48 & MS$_{\text{proxy}}$, Flow$_{\text{BVC}}$ & $\operatorname{cov}(r,SC)/\operatorname{var}(SC)$ over 48h\\
+\multicolumn{3}{l}{\emph{Order flow, observed (signed volume $2B_t-V_t$) and trade activity}}\\
+taker\_imb\_1, \_24, \_accel, taker\_vpin\_24, kyle\_lambda\_true\_48 & MS, Flow$_{\text{taker}}$ & as the BVC versions, with observed signed volume\\
+taker\_imb\_late15 & MS & taker imbalance in minutes 45--59 of the hour\\
+trades\_z\_168, trade\_size\_z\_168 & MS & 168h z-scores of log trade count and log average dollar trade size\\
+\multicolumn{3}{l}{\emph{Volatility}}\\
+gk\_vol\_24, rs\_vol\_24, yz\_vol\_24 & MS$_{\text{proxy}}$ & log 24h \citet{garman1980}, \citet{rogers1991}, \citet{yang2000} volatility\\
+vol\_ratio\_24\_168 & MS$_{\text{proxy}}$ & log ratio of 24h to 168h Garman-Klass volatility\\
+vol\_of\_vol\_168 & MS$_{\text{proxy}}$ & 168h standard deviation of log 24h Garman-Klass volatility\\
+rv\_1m\_1, rv\_1m\_24 & MS & log realised variance from 1-minute returns, current hour and 24h\\
+jump\_share\_24 & MS & 24h mean of $\max(RV-BV,0)/RV$ \citep{bns2004}\\
+rskew\_24 & MS & 24h mean of hourly realised skewness \citep{amaya2015}\\
+\multicolumn{3}{l}{\emph{Efficiency, bar structure, activity}}\\
+eff\_ratio\_24 & MS$_{\text{proxy}}$ & $|\log C_t-\log C_{t-24}|/\sum_{24}|r|$\\
+autocorr\_48 & MS$_{\text{proxy}}$ & 48h first-order autocorrelation of $r$\\
+var\_ratio\_4\_168 & MS$_{\text{proxy}}$ & variance of 4h returns over 4 times variance of 1h returns, 168h\\
+body\_share, upper\_wick, lower\_wick (24h) & MS$_{\text{proxy}}$ & candle body and wicks as share of the high-low range\\
+volume\_z\_168, volume\_trend\_24\_168 & MS$_{\text{proxy}}$ & z-score of log volume; log ratio of 24h to 168h mean volume\\
+\multicolumn{3}{l}{\emph{Technical controls}}\\
+mom\_1, \_4, \_24, \_168 & TI & $\log C_t-\log C_{t-k}$\\
+rsi\_14, macd\_hist, bb\_pctb\_20 & TI & RSI(14); MACD(12,26,9) histogram over price; Bollinger \%B(20,2)\\
+ma\_gap\_24, ma\_gap\_168, atr\_14 & TI & log gap to moving average; ATR(14) over price\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Leakage controls and a positive control}\label{app:leakage}
+
+The replication package contains automated tests that run in a few seconds.
+(i) \emph{Causality of features}: for three cut-off dates, every bar after the cut-off is multiplied
+by random noise and every feature at or before the cut-off is recomputed; the test fails if any
+value changes. The same test is applied to the intrahour features built from one-minute bars.
+(ii) \emph{Target definition}: $y_t$ must equal $\log C_{t+h}-\log C_t$ exactly.
+(iii) \emph{Purging}: for every fold and every horizon, the last training label must be observed
+before the first test bar, and the same must hold for the inner validation split.
+(iv) \emph{Analyses}: every validation and robustness function is run on synthetic data and checked
+for internal consistency (for example, the in-sample ceiling must weakly exceed the squared
+correlation of BVC), a pure-noise predictor must not produce an out-of-sample gain in the
+single-predictor walk-forward, and a planted flow signal must be recovered from observed flow but
+not from technical momentum.
+
+As a positive control we run the full pipeline on a synthetic two-year hourly series with GARCH-type
+volatility, in which a persistent latent order flow drives the taker share of volume and each hour's
+return loads negatively on the average flow of the previous four hours. The contemporaneous link
+between flow and the bar's return is deliberately weak, so BVC recovers the flow only poorly, as in
+the real data. The pipeline should find the
+signal with observed-flow features and much less of it with BVC features, and nothing with technical
+indicators. It does: the observed-flow elastic net reaches an out-of-sample $R^2$ of about 3\% with a
+Clark-West $t$-statistic above 10, the BVC-flow model about zero, and the technical model a negative
+$R^2$. A pipeline that leaked future information would instead show gains for every feature set. The
+script \texttt{scripts/make\_synthetic.py} generates the series.
+
+\section{Additional tables}
+
+\begin{table}[H]
+\centering\caption{Alternative flow classifiers vs.\ observed taker imbalance, BTC/USDT}\label{tab:variants}
+\input{tables/tab_variants_btc}
+\tabnote{Correlation and sign agreement between proxy imbalance and observed taker imbalance, per hour
+(1h) and over rolling 24-hour sums (24h). Student-$t$(3) is rescaled to unit variance.}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{Information ceiling by period}\label{tab:ceiling}
+\input{tables/tab_ceiling_periods}
+\tabnote{Ceiling: in-sample $R^2$ of observed hourly taker imbalance on 50 quantile-bin means of the
+standardised bar return, the upper bound for any return-based classifier calibrated to that period.
+corr$^2$(BVC): squared correlation of hourly BVC with observed imbalance. Slope: OLS slope of observed
+imbalance on BVC (its calibration). SD imb.: standard deviation of observed hourly imbalance. Ceiling
+(1m): the same bound for one-minute imbalance on one-minute returns.}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{BVC accuracy by regime, BTC/USDT}\label{tab:regimes}
+\input{tables/tab_regimes_btc}
+\tabnote{Volatility terciles use the 24h Garman-Klass volatility ranked against the trailing 30 days.}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{Rolling six-month estimation window, BTC/USDT}\label{tab:rolling}
+\input{tables/tab_rolling}
+\tabnote{Out-of-sample $R^2$ (\%) against the zero forecast with the expanding window of the main
+analysis and with a six-month rolling window; Clark-West $p$-value and IC for the rolling window.}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{Drop-one-group ablation, full elastic net, BTC/USDT}\label{tab:dropgroup}
+\input{tables/tab_dropgroup}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{Conditional out-of-sample accuracy, BTC/USDT}\label{tab:conditional}
+\resizebox{\textwidth}{!}{\input{tables/tab_conditional}}
+\tabnote{Out-of-sample $R^2$ against zero (\%) within each group, Clark-West $p$-value in parentheses.
+Volatility and illiquidity terciles rank the 24h Garman-Klass volatility and the Amihud ratio against
+the trailing 30 days, so group membership is known at forecast time.}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{Sub-period accuracy, BTC/USDT}\label{tab:subperiods}
+\resizebox{\textwidth}{!}{\input{tables/tab_subperiods}}
+\tabnote{Out-of-sample $R^2$ against zero (\%) in four equal sub-periods of the test sample, with the
+BTC return over each sub-period.}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{Out-of-sample forecast accuracy, ETH/USDT}\label{tab:forecast_eth}
+\resizebox{\textwidth}{!}{\input{tables/tab_forecast_eth}}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{Incremental predictive information, ETH/USDT}\label{tab:incremental_eth}
+\resizebox{\textwidth}{!}{\input{tables/tab_incremental_eth}}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{Return response to order-flow shocks, ETH/USDT}\label{tab:response_eth}
+\input{tables/tab_flow_response_eth}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{Proxy validation, ETH/USDT}\label{tab:validation_eth}
+\resizebox{\textwidth}{!}{\input{tables/tab_validation_eth}}
+\end{table}
+
+\begin{table}[H]
+\centering\caption{BVC accuracy by regime, ETH/USDT}\label{tab:regimes_eth}
+\input{tables/tab_regimes_eth}
+\end{table}

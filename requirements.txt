@@ -1,0 +1,9 @@
+numpy>=1.26
+pandas>=2.1
+scipy>=1.11
+scikit-learn>=1.4
+statsmodels>=0.15  # 0.14 breaks with pandas 3
+matplotlib>=3.8
+pyyaml>=6.0
+pytest>=7.0
+jinja2>=3.1

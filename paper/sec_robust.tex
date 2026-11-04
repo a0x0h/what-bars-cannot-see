@@ -1,0 +1,71 @@
+\section{Robustness}\label{sec:robust}
+
+\paragraph{Second asset.} We repeat the full analysis for ETH/USDT (Appendix
+Tables~\ref{tab:validation_eth}, \ref{tab:forecast_eth} and \ref{tab:regimes_eth}). The measurement
+results are almost identical. Hourly BVC imbalance has a correlation of \ETHbvcCorr{} with observed
+imbalance, the in-sample information ceiling of return-based classifiers is \ETHceilIS{} on hourly and
+\ETHceilISm{} on one-minute bars, Garman-Klass volatility has a correlation of \ETHgkCorr{} with
+realised volatility, and the Corwin-Schultz estimate has a median of \ETHcsMedian{} basis points
+against a tick of \ETHtick. The zero-fee promotion offers a useful comparison here. On BTC/USDT, which
+was included, the hourly BVC correlation rises from \BTCbvcStdFee{} under standard fees to
+\BTCbvcZeroFee{} during the promotion; on ETH/USDT, which was not, it is \ETHbvcStdFee{} and
+\ETHbvcZeroFee{}. The fee change altered the relation between prices and aggressor flow only on the
+asset it applied to.
+
+The forecasting results for ETH differ in one respect. The technical-indicator model is the only one
+with a positive out-of-sample $R^2$ (\ETHrtwoTI\%, Clark-West $p=\ETHcwpTI$), and adding
+microstructure variables makes forecasts significantly \emph{worse}: the Diebold-Mariano $p$-value
+for ALL against TI is \ETHincALLTIDMp, with ALL less accurate. No microstructure or flow model beats
+the zero forecast. The best trading rule is again one that uses no microstructure information, the
+\ETHbestRule{} rule on \ETHbestModel{} with a gross Sharpe ratio of \ETHbestSR, and its deflated
+Sharpe ratio of \ETHbestDSR{} is below conventional thresholds. The
+reversal after aggressor flow found for BTC does not replicate for ETH at conventional significance
+levels: the two-hour coefficient is negative in the full sample, under standard fees and in both
+halves, but about half as large as for BTC, with $t$-statistics between $-0.7$ and $-1.7$, and it is
+positive during the zero-fee window (Table~\ref{tab:response_splits}). In ETH, BVC imbalance has a
+positive coefficient at eight to twelve hours ($t\approx2.3$, Appendix Table~\ref{tab:response_eth});
+the bar-return coefficient is similar, so this reflects return continuation rather than information
+in flow.
+
+\paragraph{Stability of the flow response.} Table~\ref{tab:response_splits} re-estimates
+regression~\eqref{eq:response} in sub-samples. For BTC the two-hour reversal is of similar size
+under standard fees, during the zero-fee window and in both halves of the sample, and remains when
+the bar return is held fixed. It is therefore not an artefact of the promotion or of one market
+phase.
+
+\begin{table}[t]
+\centering\caption{Stability of the return response to observed flow}\label{tab:response_splits}
+\resizebox{\textwidth}{!}{\input{tables/tab_response_splits}}
+\tabnote{Coefficients (basis points per standard deviation) and Newey-West $t$-statistics from
+regression~\eqref{eq:response} at horizons of two and four hours, by sub-sample. The last two columns
+include the standardised bar return $z_t$ as a control.}
+\end{table}
+
+\paragraph{Forecast horizon.} Table~\ref{tab:horizons} repeats the walk-forward for horizons of
+1, 8 and 24 hours. The pattern matches ETH: the technical-indicator model has small positive
+out-of-sample $R^2$ at one, eight and 24 hours, the largest being \BTChzTIeight\% at eight hours
+(Clark-West $p=\BTChzTIeightp$), while the microstructure feature sets never improve on it.
+
+\begin{table}[t]
+\centering\caption{Forecast horizon, BTC/USDT}\label{tab:horizons}
+\input{tables/tab_horizons}
+\tabnote{Out-of-sample $R^2$ against the zero forecast (\%), Clark-West $p$-value against zero in
+parentheses.}
+\end{table}
+
+\paragraph{Estimation window.} Replacing the expanding window by a six-month rolling window, which
+adapts faster to changing conditions at the cost of noisier estimates, makes every model worse,
+with out-of-sample $R^2$ of about $-0.4\%$ and no significant Clark-West statistic (Appendix
+Table~\ref{tab:rolling}). Whatever predictability exists is not a short-lived, local relation that a
+shorter window would capture.
+
+\paragraph{Feature groups.} Dropping one feature group at a time from the full elastic net
+(Appendix Table~\ref{tab:dropgroup}) leaves the out-of-sample $R^2$ between about $-0.17\%$ and
+$+0.02\%$. The only positive value arises when the volatility group is removed, and it is too small
+to matter; no single group is responsible for the negative results.
+
+\paragraph{Conditional predictability.} Predictability could be concentrated in particular states,
+for example when volatility is high or liquidity is low. Appendix Table~\ref{tab:conditional} splits
+the out-of-sample period by causal volatility and illiquidity terciles, trading session, weekday and
+fee regime. Out-of-sample $R^2$ is close to zero in every cell and no split shows consistent gains
+across models.

@@ -1,0 +1,188 @@
+\section{Out-of-sample forecasting and economic value}\label{sec:forecast}
+
+\subsection{Design}
+
+\paragraph{Target and walk-forward.} The target is the four-hour log return
+$y_{t}=\log C_{t+4}-\log C_t$, formed at the close of hour $t$. The first six months after the
+feature warm-up are used only for training. The remaining sample (\BTCoosStart{} to \BTCoosEnd,
+\BTCnOOS{} hours) is cut into \BTCnFoldsWF{} consecutive 30-day test blocks. Before each block every
+model is re-estimated on all observations whose label is observable at the block start, i.e.\ with
+$t+4$ strictly before the block (purging); nothing from the block enters estimation. Within each
+training window the last 20\% serves as a validation block, itself purged from the inner training
+rows, on which hyper-parameters are chosen before the model is refitted on the full window.
+Winsorisation bounds (1st and 99th percentiles) and standardisation moments are estimated on the
+training window only. Automated tests replace every bar after $t$ by noise and verify that features
+at $t$ are unchanged, and check the purge condition for every fold (Appendix~\ref{app:leakage}).
+
+\paragraph{Models.} Following \citet{gu2020}, models forecast the return relative to zero. The
+elastic net is fitted without intercept on standardised features, with the penalty chosen from a
+13-point grid and the $\ell_1$ share from $\{0.1,0.5,0.9\}$ on the validation block. As a non-linear
+benchmark we use gradient-boosted trees with depth three, at least 300 observations per leaf and a
+learning rate of 0.03, with the number of rounds chosen on the validation block. We also report the
+historical-mean forecast. We estimate every model on every feature set defined in
+Section~\ref{sec:measures} and report all of them.
+
+\paragraph{Statistical evaluation.} The out-of-sample $R^2$ relative to a benchmark $b$ is
+$R^2_{OOS}=1-\sum(y-\hat y)^2/\sum(y-\hat y^{b})^2$ \citep{campbell2008}. Because the zero forecast and
+smaller feature sets are nested in larger ones, we test equal predictive accuracy with the
+\citet{clark2007} statistic (one-sided), which adjusts for the noise that estimating irrelevant
+parameters adds to the larger model, and report the \citet{diebold1995} statistic, which compares
+realised accuracy. Overlapping four-hour targets make forecast errors serially correlated, so all
+$t$-statistics use \citet{newey1987} standard errors with $\max(24,2h)$ lags. The information
+coefficient (rank correlation of forecast and outcome) is reported with a 95\% moving-block bootstrap
+interval with 48-hour blocks \citep{kunsch1989}.
+
+\paragraph{Economic evaluation.} Each hour a signal $s_t\in\{-1,0,1\}$ is formed and held for four
+hours with a quarter of capital per sleeve \citep{jegadeesh1993}, so the position over $(t,t+1]$ is
+$\frac14\sum_{k=0}^{3}s_{t-k}$; every forecast is used and no exposure is double counted. The
+\emph{sign} rule sets $s_t=\operatorname{sign}(\hat y_t)$, which is zero when the model predicts
+exactly zero; the \emph{selective} rule trades only when $|\hat y_t|$ exceeds the 80th percentile of
+the model's absolute in-sample forecasts in the current training window. Costs of
+$c\in\{0,2,5,10\}$ basis points are charged per unit change in position. We report the break-even cost
+at which net profit is zero, the HAC $t$-statistic of the intercept in a regression of strategy
+returns on BTC returns, the number of calendar years with a positive Sharpe ratio, and the deflated
+Sharpe ratio (DSR) of \citet{bailey2014}. The DSR is the probability that a strategy's true Sharpe ratio
+exceeds the maximum expected among all \BTCnTrials{} model and rule combinations under the null of no
+skill, given their dispersion, the sample length and the non-normality of returns.
+
+\subsection{Forecast accuracy}
+
+\begin{table}[t]
+\centering\caption{Out-of-sample forecast accuracy, four-hour BTC/USDT returns}\label{tab:forecast}
+\resizebox{\textwidth}{!}{\input{tables/tab_forecast}}
+\tabnote{Monthly expanding-window walk-forward, \BTCoosStart{} to \BTCoosEnd{} (\BTCnOOS{} hourly
+forecasts). EN: elastic net; GBM: gradient-boosted trees. CW: Clark-West statistic against the zero
+forecast (one-sided). IC: Spearman correlation of forecast and outcome, with 95\% block-bootstrap
+interval. Hit $t$: HAC $t$-statistic of the hit rate against 50\%. $^{*}$, $^{**}$, $^{***}$: 10\%,
+5\%, 1\% significance.}
+\end{table}
+
+Table~\ref{tab:forecast} reports the main results for BTC/USDT. All \BTCnModels{} models have a
+negative out-of-sample $R^2$ against the zero forecast; the best is \BTCbestRtwoModel{} at
+\BTCbestRtwo\%. The historical mean is also worse than zero: trailing average returns are a noisy
+estimate of the drift, and in this sample the early training windows are dominated by the 2022 bear
+market, which the following recovery reversed \citep{campbell2008}. Clark-West statistics against zero
+are significant at the 10\% level only for the technical-indicator model (\(p=\BTCcwpTI\)) and the
+full model (\(p=\BTCcwpALL\)). The information coefficients are all within about two hundredths of
+zero. The confidence interval excludes zero for the full model ($\text{IC}=\BTCicALL$) and, with the
+wrong sign, for the BVC-flow model ($\text{IC}=\BTCicFLOWproxy$), whose coefficients are unstable
+across folds. The
+observed-flow model, which uses the matched constructions from exchange-reported taker volume, does
+no better than its BVC counterpart.
+
+Figure~\ref{fig:cumsse} plots the cumulative difference in squared errors between the zero forecast
+and each model \citep{goyal2008}. No line trends upwards for an extended period; gains in some
+months are offset by losses in others.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{fig_cum_sse.png}
+\caption{Cumulative squared-error difference between the zero forecast and each model, BTC/USDT
+four-hour returns. A rising line means the model is more accurate than the zero forecast.}
+\label{fig:cumsse}
+\end{figure}
+
+\subsection{Incremental information}
+
+\begin{table}[t]
+\centering\caption{Incremental predictive information, BTC/USDT}\label{tab:incremental}
+\resizebox{\textwidth}{!}{\input{tables/tab_incremental}}
+\tabnote{$R^2_{OOS}$ rel.: out-of-sample $R^2$ of the model relative to the benchmark. CW: Clark-West
+test of the null that the larger model adds nothing to the nested benchmark (one-sided). DM:
+Diebold-Mariano test of equal mean squared error (two-sided). The observed-flow and BVC-flow models are
+not nested, so only DM is reported.}
+\end{table}
+
+Table~\ref{tab:incremental} asks whether each richer feature set improves on a simpler one. The
+Clark-West test rejects the null that microstructure variables add nothing to technical indicators
+($p=\BTCincMSTICWp$ for MS over TI and $p=\BTCincALLTICWp$ for ALL over TI) and that observed flow and
+intrahour measures add nothing to the OHLCV proxies ($p=\BTCincMSMSproxyCWp$). In each case, however,
+the realised gain in mean squared error is a few hundredths of a percent and the Diebold-Mariano test
+does not reject equal accuracy. This is the pattern Clark-West is designed to detect: the larger
+model's population coefficients are not all zero, but the information they carry is smaller than the
+noise introduced by estimating them, so the larger model does not forecast better in practice.
+
+The model selection inside each training window tells the same story. For the elastic net the
+validation step chooses the penalty that sets every coefficient to zero in \BTCnullMSproxy{} of the
+\BTCnFolds{} folds with the OHLCV proxies, \BTCnullMS{} with observed flow and intrahour measures, and
+\BTCnullALL{} with all features, against \BTCnullTI{} with technical indicators alone. Most of the
+time, the data prefer no forecast at all.
+
+\subsection{A single predictor: observed flow against its proxy}
+
+The flow models above combine five constructions and tune a penalty on a short validation block,
+which may discard a weak but genuine signal. Section~\ref{sec:response} suggests a direct test: does
+the current hour's observed taker imbalance, on its own, forecast returns out of sample, and does its
+BVC counterpart? For each predictor we estimate a one-variable regression without intercept on the
+standardised predictor in the same expanding monthly walk-forward, with purged labels and moments
+from the training window only, and no tuning.
+
+\begin{table}[t]
+\centering\caption{Single-predictor out-of-sample test}\label{tab:single}
+\resizebox{\textwidth}{!}{\input{tables/tab_single}}
+\tabnote{One-variable expanding-window regression, re-estimated monthly with purged labels; the
+coefficient is learned from past data only. $R^2_{OOS}$ against the zero forecast; CW: Clark-West
+test against zero (one-sided); IC: Spearman correlation of forecast and outcome. The last two columns
+split the out-of-sample period into halves.}
+\end{table}
+
+Table~\ref{tab:single} gives a clean contrast for BTC. Observed taker imbalance has a positive
+out-of-sample $R^2$ at every horizon, \BTCspRtwo\% at two hours with a Clark-West $p$-value of
+\BTCspPtwo{} and an information coefficient of \BTCspICtwo. The result holds in both halves of the
+test period (\BTCspRAtwo\% with $p=\BTCspPAtwo$ in the first and \BTCspRBtwo\% with $p=\BTCspPBtwo$ in
+the second). Hourly BVC imbalance has a negative out-of-sample $R^2$ at every horizon and no
+significant Clark-West statistic. BVC on one-minute bars lies in between, with an out-of-sample $R^2$
+of \BTCspbvcmRtwo\% at two hours ($p=\BTCspbvcmPtwo$), in line with the in-sample gradient of
+Section~\ref{sec:response}. Because the coefficient is re-estimated from past data each month, the
+sign of the relation is learned in real time; the predictor itself, however, was suggested by the
+full-sample analysis, so the test is not pre-registered. Even a Bonferroni correction for all \nALL{}
+candidate features leaves the two-hour result for observed flow significant at the 1\% level. For
+ETH none of the three predictors forecasts returns, consistent with the weaker in-sample response.
+
+\begin{table}[t]
+\centering\caption{Trading on the single observed-flow forecast, two-hour holding period}\label{tab:single_trading}
+\input{tables/tab_single_trading}
+\tabnote{Overlapping-sleeve rule on the out-of-sample forecast from observed taker imbalance alone
+(Table~\ref{tab:single}, two-hour horizon). Sign: trade every hour in the direction of the forecast;
+selective: only when $|\hat y_t|$ exceeds the 80th percentile of in-sample absolute forecasts.
+Break-even: cost per unit turnover at which net profit is zero.}
+\end{table}
+
+Two lessons follow. First, the information that order flow carries about short-horizon BTC returns
+is detectable out of sample when flow is measured, partly recoverable from one-minute prices, and
+absent from hourly bars. Second, the multivariate elastic net that includes the same variable fails
+to exploit it: with a weak signal and many correlated candidates, cross-validated shrinkage on a short
+validation block usually selects the empty model. The signal is nonetheless far too small to trade.
+Table~\ref{tab:single_trading} applies the overlapping-sleeve rule to the observed-flow forecast with a
+two-hour holding period. Gross Sharpe ratios are \BTCstSRsign{} for the sign rule and
+\BTCstSRselective{} for the selective rule, but the rules turn over their position many times a day,
+and their break-even costs are \BTCstBEsign{} and \BTCstBEselective{} basis points per unit of
+turnover. That is an order of magnitude below the standard fee of ten basis points, and below the
+taker fees of high-volume accounts, which remain at a few basis points; a strategy that must trade
+immediately on an hourly signal cannot rely on maker rebates. The predictable component is a
+statistical regularity, not an exploitable strategy.
+
+\subsection{Economic value}
+
+\begin{table}[t]
+\centering\caption{Trading performance of forecast-based rules, BTC/USDT}\label{tab:backtest}
+\resizebox{\textwidth}{!}{\input{tables/tab_backtest}}
+\tabnote{Overlapping-sleeve implementation with a four-hour holding period. Costs are per unit change
+in position. Break-even: cost per unit turnover at which net profit is zero. $\alpha$ $t$: HAC
+$t$-statistic of the intercept in a regression of gross strategy returns on BTC returns. Years
+$SR>0$: calendar years with positive gross Sharpe ratio. DSR: deflated Sharpe ratio
+\citep{bailey2014} across all \BTCnTrials{} model and rule combinations.}
+\end{table}
+
+Table~\ref{tab:backtest} translates the forecasts into trading rules. Before costs, most rules have
+Sharpe ratios between $-1$ and $1$, and only \BTCnPosSRfive{} of the \BTCnTrials{} combinations keeps a
+positive Sharpe ratio at five basis points. One combination stands out: the sign rule applied to
+the full elastic net, with a gross Sharpe ratio of \BTCbestSR, a break-even cost of \BTCbestBE{}
+basis points and almost no market exposure (beta \BTCbestBeta, alpha $t=\BTCbestAlphaT$). Three
+diagnostics argue against reading it as evidence of a profitable signal. Its probabilistic Sharpe
+ratio against zero is \BTCbestPSR, but once we account for having selected it from \BTCnTrials{}
+candidates, the deflated Sharpe ratio is \BTCbestDSR, below conventional thresholds. Its Sharpe ratio
+ranges from \BTCbestSRmin{} to \BTCbestSRmax{} across calendar years and is positive in \BTCbestYears{}
+of them. And it is not the model with the best forecast accuracy, so its performance does not reflect
+a systematic forecasting advantage. No rule has a break-even cost above \BTCmaxBE{} basis points, so a
+trader paying the standard fee of ten basis points per side would have lost money with every rule.

@@ -1,0 +1,246 @@
+{
+  "asset": "BTCUSDT_1H",
+  "source": "BTCUSDT_1h.csv",
+  "n_bars": 42360,
+  "has_1m": true,
+  "feature_groups": {
+    "spread_impact": [
+      "cs_spread_24",
+      "ar_spread_24",
+      "roll_spread_48",
+      "amihud_24"
+    ],
+    "order_flow": [
+      "ofi_1",
+      "ofi_24",
+      "ofi_accel",
+      "vpin_24",
+      "kyle_lambda_48"
+    ],
+    "volatility": [
+      "gk_vol_24",
+      "rs_vol_24",
+      "yz_vol_24",
+      "vol_ratio_24_168",
+      "vol_of_vol_168",
+      "sqrt_impact_24"
+    ],
+    "efficiency_structure": [
+      "eff_ratio_24",
+      "autocorr_48",
+      "var_ratio_4_168",
+      "body_share_24",
+      "upper_wick_24",
+      "lower_wick_24"
+    ],
+    "activity": [
+      "volume_z_168",
+      "volume_trend_24_168"
+    ],
+    "trade_level": [
+      "taker_imb_1",
+      "taker_imb_24",
+      "taker_imb_accel",
+      "taker_vpin_24",
+      "kyle_lambda_true_48",
+      "trades_z_168",
+      "trade_size_z_168",
+      "taker_imb_late15"
+    ],
+    "intrahour_1m": [
+      "rv_1m_24",
+      "jump_share_24",
+      "rskew_24",
+      "rv_1m_1"
+    ]
+  },
+  "missing_hours": 1,
+  "taker_flow": true,
+  "n_features": {
+    "TI": 10,
+    "MS_proxy": 23,
+    "MS": 35,
+    "ALL": 45,
+    "FLOW_proxy": 5,
+    "FLOW_true": 5
+  },
+  "main_horizon": 4,
+  "n_folds": 53,
+  "oos_start": "2022-07-10 10:00:00+00:00",
+  "oos_end": "2026-10-31 19:00:00+00:00",
+  "n_oos": 37593,
+  "forecast": [
+    {
+      "model": "mean",
+      "R2oos_vs_zero_%": -0.07546,
+      "R2oos_vs_mean_%": 0.0,
+      "CW_t_vs_zero": NaN,
+      "CW_p_vs_zero": NaN,
+      "IC": -0.00219,
+      "IC_lo95": -0.02119,
+      "IC_hi95": 0.01503,
+      "hit_rate": NaN,
+      "hit_t": NaN
+    },
+    {
+      "model": "enet_TI",
+      "R2oos_vs_zero_%": -0.05528,
+      "R2oos_vs_mean_%": 0.02017,
+      "CW_t_vs_zero": 1.40327,
+      "CW_p_vs_zero": 0.08027,
+      "IC": 0.00164,
+      "IC_lo95": -0.01444,
+      "IC_hi95": 0.01911,
+      "hit_rate": 0.49103,
+      "hit_t": -2.13508
+    },
+    {
+      "model": "enet_MSproxy",
+      "R2oos_vs_zero_%": -0.13931,
+      "R2oos_vs_mean_%": -0.0638,
+      "CW_t_vs_zero": -0.61066,
+      "CW_p_vs_zero": 0.72929,
+      "IC": -0.0054,
+      "IC_lo95": -0.02418,
+      "IC_hi95": 0.01283,
+      "hit_rate": 0.4881,
+      "hit_t": -2.05183
+    },
+    {
+      "model": "enet_MS",
+      "R2oos_vs_zero_%": -0.00572,
+      "R2oos_vs_mean_%": 0.06969,
+      "CW_t_vs_zero": 0.86234,
+      "CW_p_vs_zero": 0.19425,
+      "IC": -0.00153,
+      "IC_lo95": -0.01941,
+      "IC_hi95": 0.01414,
+      "hit_rate": 0.49395,
+      "hit_t": -0.92394
+    },
+    {
+      "model": "enet_ALL",
+      "R2oos_vs_zero_%": -0.0251,
+      "R2oos_vs_mean_%": 0.05032,
+      "CW_t_vs_zero": 1.3363,
+      "CW_p_vs_zero": 0.09073,
+      "IC": 0.01935,
+      "IC_lo95": 0.00362,
+      "IC_hi95": 0.03475,
+      "hit_rate": 0.50789,
+      "hit_t": 1.43875
+    },
+    {
+      "model": "enet_FLOWproxy",
+      "R2oos_vs_zero_%": -0.08057,
+      "R2oos_vs_mean_%": -0.00511,
+      "CW_t_vs_zero": -1.34793,
+      "CW_p_vs_zero": 0.91116,
+      "IC": -0.02094,
+      "IC_lo95": -0.03818,
+      "IC_hi95": -0.0058,
+      "hit_rate": 0.47477,
+      "hit_t": -3.98795
+    },
+    {
+      "model": "enet_FLOWtrue",
+      "R2oos_vs_zero_%": -0.03588,
+      "R2oos_vs_mean_%": 0.03955,
+      "CW_t_vs_zero": -0.40706,
+      "CW_p_vs_zero": 0.65802,
+      "IC": -0.00667,
+      "IC_lo95": -0.02117,
+      "IC_hi95": 0.00874,
+      "hit_rate": 0.49175,
+      "hit_t": -1.25564
+    },
+    {
+      "model": "gbm_MS",
+      "R2oos_vs_zero_%": -0.28381,
+      "R2oos_vs_mean_%": -0.20819,
+      "CW_t_vs_zero": 0.39256,
+      "CW_p_vs_zero": 0.34732,
+      "IC": 0.00043,
+      "IC_lo95": -0.01789,
+      "IC_hi95": 0.01891,
+      "hit_rate": 0.49751,
+      "hit_t": -0.65969
+    },
+    {
+      "model": "gbm_ALL",
+      "R2oos_vs_zero_%": -0.26239,
+      "R2oos_vs_mean_%": -0.18679,
+      "CW_t_vs_zero": 0.98259,
+      "CW_p_vs_zero": 0.16291,
+      "IC": 0.00259,
+      "IC_lo95": -0.01419,
+      "IC_hi95": 0.01951,
+      "hit_rate": 0.49355,
+      "hit_t": -1.71981
+    }
+  ],
+  "incremental": [
+    {
+      "model": "enet_ALL",
+      "vs": "enet_TI",
+      "nested": true,
+      "R2oos_rel_%": 0.03015,
+      "CW_t": 2.40996,
+      "CW_p": 0.00798,
+      "DM_t": 0.33048,
+      "DM_p": 0.74104
+    },
+    {
+      "model": "enet_MS",
+      "vs": "enet_TI",
+      "nested": true,
+      "R2oos_rel_%": 0.04953,
+      "CW_t": 2.85025,
+      "CW_p": 0.00218,
+      "DM_t": 0.54613,
+      "DM_p": 0.58498
+    },
+    {
+      "model": "enet_MS",
+      "vs": "enet_MSproxy",
+      "nested": true,
+      "R2oos_rel_%": 0.1334,
+      "CW_t": 2.59095,
+      "CW_p": 0.00479,
+      "DM_t": 1.53317,
+      "DM_p": 0.12523
+    },
+    {
+      "model": "enet_MSproxy",
+      "vs": "enet_TI",
+      "nested": true,
+      "R2oos_rel_%": -0.08399,
+      "CW_t": 1.49134,
+      "CW_p": 0.06794,
+      "DM_t": -0.71272,
+      "DM_p": 0.47602
+    },
+    {
+      "model": "gbm_ALL",
+      "vs": "enet_TI",
+      "nested": true,
+      "R2oos_rel_%": -0.207,
+      "CW_t": 1.72728,
+      "CW_p": 0.04206,
+      "DM_t": -0.88204,
+      "DM_p": 0.37775
+    },
+    {
+      "model": "enet_FLOWtrue",
+      "vs": "enet_FLOWproxy",
+      "nested": false,
+      "R2oos_rel_%": 0.04466,
+      "CW_t": NaN,
+      "CW_p": NaN,
+      "DM_t": 0.9692,
+      "DM_p": 0.33245
+    }
+  ],
+  "robustness_done": true,
+  "runtime_sec": 985.4
+}

@@ -1,0 +1,14 @@
+\begin{tabular}{lrrrr}
+\toprule
+ & \multicolumn{2}{c}{Pearson} & \multicolumn{2}{c}{Same sign}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5} Classifier & 1h & 24h & 1h & 24h\\
+\midrule
+BVC Normal, sigma 24h (1h bars) & 0.498 & 0.520 & 0.708 & 0.721\\
+BVC Normal, sigma 168h (1h bars) & 0.487 & 0.513 & 0.708 & 0.720\\
+BVC Normal, sigma 720h (1h bars) & 0.480 & 0.508 & 0.709 & 0.721\\
+BVC Student-t(3), sigma 168h (1h bars) & 0.493 & 0.512 & 0.708 & 0.716\\
+Tick rule (1h bars) & 0.432 & 0.475 & 0.708 & 0.693\\
+BVC Normal, sigma 1440m (1m bars) & 0.556 & 0.560 & 0.736 & 0.738\\
+Tick rule (1m bars) & 0.550 & 0.554 & 0.718 & 0.732\\
+\bottomrule
+\end{tabular}

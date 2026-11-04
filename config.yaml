@@ -1,0 +1,13 @@
+seed: 42
+main_horizon: 4            # hours
+horizons: [1, 4, 8, 24]    # robustness
+costs_bps: [0, 2, 5, 10]   # per unit of turnover (one side); 2 bps ~ maker/VIP taker, 10 bps ~ retail taker
+
+walkforward:
+  min_train_hours: 4380    # first 6 months after warm-up are training only
+  step_hours: 720          # re-estimate every 30 days
+  window: expanding
+  val_frac: 0.2            # inner validation share for hyper-parameter choice
+  signal_quantile: 0.8     # selective rule trades top 20% |forecast|
+
+rolling_train_hours: 4380  # robustness: 6-month rolling window instead of expanding

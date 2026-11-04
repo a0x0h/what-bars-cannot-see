@@ -1,0 +1,86 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,microtype,amsmath,booktabs,graphicx,xcolor,caption,float}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\captionsetup{font=small,labelfont=bf}
+\graphicspath{{../results/BTCUSDT_1H/figures/}{figures/}}
+\input{tables/numbers}
+\pagestyle{empty}
+\setlength{\parskip}{4pt}\setlength{\parindent}{0pt}
+
+\begin{document}
+{\Large\bfseries What Bars Cannot See: Order Flow, Its OHLCV Proxies, and Short-Horizon Bitcoin Returns}\\[3pt]
+Seyed Abolfazl Hosseini, Ferdowsi University of Mashhad\\
+Research summary, November 2026 \hfill Paper and code: \href{https://github.com/a0x0h/what-bars-cannot-see}{github.com/a0x0h/what-bars-cannot-see}
+
+\vspace{4pt}\hrule\vspace{6pt}
+
+\textbf{Question.} Bulk volume classification (BVC), Kyle's lambda and high-low spread estimators are
+used to study order flow and liquidity when trade-level data are unavailable, and increasingly as
+features in return forecasts. How much of the true quantity do they capture, and does the true
+quantity or its proxy predict short-horizon returns out of sample and after costs?
+
+\textbf{Data and identification.} Binance spot BTC/USDT and ETH/USDT, January 2022 to October 2026,
+hourly and one-minute bars (about 42{,}000 hours and 2.5 million minutes per asset). The exchange
+reports the taker-buy volume of every bar, so the true signed order flow is observed; on one month of
+trade-level data the bar-level imbalance matches trade-level aggressor flow with correlation
+\aggCorr. A zero-fee promotion on BTC/USDT only (July 2022 to March 2023) gives a natural comparison
+with ETH/USDT.
+
+\textbf{Methods.} (1) Proxy validation against observed flow and one-minute realised volatility, and
+a nonparametric \emph{information ceiling}: the $R^2$ of the best possible function of the bar's
+standardised return, an upper bound for every return-based classifier including BVC and the tick
+rule. (2) Return response to one-SD flow shocks over 1--24 hours, separating the part of flow visible
+in the bar's price from the part that is not (Newey-West inference). (3) Monthly walk-forward over
+\BTCnFoldsWF{} test months with purged labels and all preprocessing and tuning inside each training
+window; elastic net and gradient boosting on nested feature sets; Clark-West, Diebold-Mariano and
+block-bootstrap inference; overlapping-sleeve trading rules with costs and the deflated Sharpe ratio.
+Automated tests verify that no feature uses future data.
+
+\textbf{Findings.}
+\begin{enumerate}\itemsep1pt
+\item \emph{Volatility is measured well, order flow is not.} Garman-Klass volatility from hourly bars
+has correlation \BTCgkCorr{} with realised volatility. BVC imbalance has correlation \BTCbvcCorr{} with
+observed imbalance, and no function of the bar return explains more than \BTCceilIS{} of its variance
+even in sample (\BTCceilISm{} on one-minute bars): most aggressor flow leaves no trace in the bar's
+price, BVC is already near this bound, and its scale drifts over time. Kyle's
+lambda from BVC has correlation \BTClambdaCorr{} with lambda from true flow. The Corwin-Schultz spread
+has a median of \BTCcsMedian{} bps on a market whose tick is \BTCtick{} bps and moves with volatility
+(correlation \BTCcsVolCorr). Results are nearly identical for ETH.
+\item \emph{In BTC, the information in flow is in the part bars cannot see.} A one-SD taker-imbalance
+shock is followed by a price decline of \BTCfrTakAtwo{} bps over two hours ($t=\BTCfrTakTtwo$), robust to
+lagged returns, volume and volatility and stable across fee regimes and sample halves. Holding the bar
+return fixed leaves it unchanged. Predictive content rises with measurement accuracy: none for hourly
+BVC, part for BVC on one-minute bars, all for observed flow, which subsumes the proxy. In ETH the
+effect is weaker and not significant.
+\item \emph{Detectable out of sample only when measured, and too small to trade.} Used alone in a
+monthly walk-forward, observed imbalance forecasts BTC returns out of sample ($R^2_{OOS}=\BTCspRtwo$\%,
+Clark-West $p=\BTCspPtwo$ at two hours, significant in both halves); hourly BVC does not. Traded on
+its own, the signal breaks even at about \BTCstBEselective{} bp per unit of turnover. No multivariate model using
+microstructure proxies, observed flow or realised measures beats a zero forecast; cross-validation
+selects the empty model in most months. The best of \BTCnTrials{} trading rules has a gross Sharpe ratio of
+\BTCbestSR{} but a deflated Sharpe ratio of \BTCbestDSR, and no rule breaks even at the standard fee.
+\item \emph{Fees change the data.} Binance's zero-fee promotion on BTC/USDT multiplied hourly trade
+counts fivefold and cut the dispersion of aggressor imbalance from \BTCsdImbStd{} to \BTCsdImbZero;
+ETH/USDT, not included, was unaffected.
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_bvc_calibration.png}\\[4pt]
+\includegraphics[width=0.62\textwidth]{fig_flow_response.png}
+\caption{Top: observed taker imbalance against the standardised bar return (bin means and 10--90\%
+band) with the BVC mapping $2\Phi(z)-1$; BVC overstates the scale and cannot see most of the flow.
+Bottom: cumulative BTC return after a one-SD flow shock, for observed flow, hourly BVC flow, and
+observed flow holding the bar return fixed (95\% Newey-West bands).}
+\end{figure}
+
+\textbf{Why it matters.} Bar-based flow and spread measures should not be read as measures of order
+flow or transaction costs in liquid electronic markets, and the predictive content of order flow
+at intraday horizons is precisely what such proxies discard. The natural next steps are order-book
+data at higher frequency, where flow imbalance at the best quotes is known to matter, and flow
+measured across venues.
+
+\textbf{Contact.} \href{mailto:hosseini.systems@gmail.com}{hosseini.systems@gmail.com}
+\end{document}

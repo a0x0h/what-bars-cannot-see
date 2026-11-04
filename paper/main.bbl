@@ -1,0 +1,256 @@
+\begin{thebibliography}{40}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abdi and Ranaldo(2017)]{abdi2017}
+Farshid Abdi and Angelo Ranaldo.
+\newblock A simple estimation of bid-ask spreads from daily close, high, and
+  low prices.
+\newblock \emph{Review of Financial Studies}, 30\penalty0 (12):\penalty0
+  4437--4480, 2017.
+
+\bibitem[Aleti and Mizrach(2021)]{aleti2021}
+Saketh Aleti and Bruce Mizrach.
+\newblock Bitcoin spot and futures market microstructure.
+\newblock \emph{Journal of Futures Markets}, 41\penalty0 (2):\penalty0
+  194--225, 2021.
+
+\bibitem[Amaya et~al.(2015)Amaya, Christoffersen, Jacobs, and
+  Vasquez]{amaya2015}
+Diego Amaya, Peter Christoffersen, Kris Jacobs, and Aurelio Vasquez.
+\newblock Does realized skewness predict the cross-section of equity returns?
+\newblock \emph{Journal of Financial Economics}, 118\penalty0 (1):\penalty0
+  135--167, 2015.
+
+\bibitem[Amihud(2002)]{amihud2002}
+Yakov Amihud.
+\newblock Illiquidity and stock returns: Cross-section and time-series effects.
+\newblock \emph{Journal of Financial Markets}, 5\penalty0 (1):\penalty0 31--56,
+  2002.
+
+\bibitem[Andersen and Bondarenko(2014)]{andersen2014}
+Torben~G. Andersen and Oleg Bondarenko.
+\newblock {VPIN} and the flash crash.
+\newblock \emph{Journal of Financial Markets}, 17:\penalty0 1--46, 2014.
+
+\bibitem[Bailey and L{\'o}pez~de Prado(2014)]{bailey2014}
+David~H. Bailey and Marcos L{\'o}pez~de Prado.
+\newblock The deflated {S}harpe ratio: Correcting for selection bias, backtest
+  overfitting, and non-normality.
+\newblock \emph{Journal of Portfolio Management}, 40\penalty0 (5):\penalty0
+  94--107, 2014.
+
+\bibitem[Barndorff-Nielsen and Shephard(2004)]{bns2004}
+Ole~E. Barndorff-Nielsen and Neil Shephard.
+\newblock Power and bipower variation with stochastic volatility and jumps.
+\newblock \emph{Journal of Financial Econometrics}, 2\penalty0 (1):\penalty0
+  1--37, 2004.
+
+\bibitem[Bouchaud et~al.(2018)Bouchaud, Bonart, Donier, and
+  Gould]{bouchaud2018}
+Jean-Philippe Bouchaud, Julius Bonart, Jonathan Donier, and Martin Gould.
+\newblock \emph{Trades, Quotes and Prices: Financial Markets Under the
+  Microscope}.
+\newblock Cambridge University Press, 2018.
+
+\bibitem[Brauneis et~al.(2021)Brauneis, Mestel, Riordan, and
+  Theissen]{brauneis2021}
+Alexander Brauneis, Roland Mestel, Ryan Riordan, and Erik Theissen.
+\newblock How to measure the liquidity of cryptocurrency markets?
+\newblock \emph{Journal of Banking \& Finance}, 124:\penalty0 106041, 2021.
+
+\bibitem[Campbell and Thompson(2008)]{campbell2008}
+John~Y. Campbell and Samuel~B. Thompson.
+\newblock Predicting excess stock returns out of sample: Can anything beat the
+  historical average?
+\newblock \emph{Review of Financial Studies}, 21\penalty0 (4):\penalty0
+  1509--1531, 2008.
+
+\bibitem[Chakrabarty et~al.(2015)Chakrabarty, Pascual, and
+  Shkilko]{chakrabarty2015}
+Bidisha Chakrabarty, Roberto Pascual, and Andriy Shkilko.
+\newblock Evaluating trade classification algorithms: Bulk volume
+  classification versus the tick rule and the {Lee-Ready} algorithm.
+\newblock \emph{Journal of Financial Markets}, 25:\penalty0 52--79, 2015.
+
+\bibitem[Chordia et~al.(2002)Chordia, Roll, and Subrahmanyam]{chordia2002}
+Tarun Chordia, Richard Roll, and Avanidhar Subrahmanyam.
+\newblock Order imbalance, liquidity, and market returns.
+\newblock \emph{Journal of Financial Economics}, 65\penalty0 (1):\penalty0
+  111--130, 2002.
+
+\bibitem[Clark and West(2007)]{clark2007}
+Todd~E. Clark and Kenneth~D. West.
+\newblock Approximately normal tests for equal predictive accuracy in nested
+  models.
+\newblock \emph{Journal of Econometrics}, 138\penalty0 (1):\penalty0 291--311,
+  2007.
+
+\bibitem[Cong et~al.(2023)Cong, Li, Tang, and Yang]{cong2023}
+Lin~William Cong, Xi~Li, Ke~Tang, and Yang Yang.
+\newblock Crypto wash trading.
+\newblock \emph{Management Science}, 69\penalty0 (11):\penalty0 6427--6454,
+  2023.
+
+\bibitem[Cont et~al.(2014)Cont, Kukanov, and Stoikov]{cont2014}
+Rama Cont, Arseniy Kukanov, and Sasha Stoikov.
+\newblock The price impact of order book events.
+\newblock \emph{Journal of Financial Econometrics}, 12\penalty0 (1):\penalty0
+  47--88, 2014.
+
+\bibitem[Corwin and Schultz(2012)]{corwin2012}
+Shane~A. Corwin and Paul Schultz.
+\newblock A simple way to estimate bid-ask spreads from daily high and low
+  prices.
+\newblock \emph{Journal of Finance}, 67\penalty0 (2):\penalty0 719--760, 2012.
+
+\bibitem[Diebold and Mariano(1995)]{diebold1995}
+Francis~X. Diebold and Roberto~S. Mariano.
+\newblock Comparing predictive accuracy.
+\newblock \emph{Journal of Business \& Economic Statistics}, 13\penalty0
+  (3):\penalty0 253--263, 1995.
+
+\bibitem[Easley et~al.(2012)Easley, L{\'o}pez~de Prado, and O'Hara]{easley2012}
+David Easley, Marcos L{\'o}pez~de Prado, and Maureen O'Hara.
+\newblock Flow toxicity and liquidity in a high-frequency world.
+\newblock \emph{Review of Financial Studies}, 25\penalty0 (5):\penalty0
+  1457--1493, 2012.
+
+\bibitem[Easley et~al.(2016)Easley, L{\'o}pez~de Prado, and O'Hara]{easley2016}
+David Easley, Marcos L{\'o}pez~de Prado, and Maureen O'Hara.
+\newblock Discerning information from trade data.
+\newblock \emph{Journal of Financial Economics}, 120\penalty0 (2):\penalty0
+  269--285, 2016.
+
+\bibitem[Easley et~al.(2021)Easley, L{\'o}pez~de Prado, O'Hara, and
+  Zhang]{easley2021machine}
+David Easley, Marcos L{\'o}pez~de Prado, Maureen O'Hara, and Zhibai Zhang.
+\newblock Microstructure in the machine age.
+\newblock \emph{Review of Financial Studies}, 34\penalty0 (7):\penalty0
+  3316--3363, 2021.
+
+\bibitem[Easley et~al.(2024)Easley, O'Hara, Yang, and Zhang]{easley2024crypto}
+David Easley, Maureen O'Hara, Songshan Yang, and Zhibai Zhang.
+\newblock Microstructure and market dynamics in crypto markets.
+\newblock Working paper, SSRN 4814346, 2024.
+
+\bibitem[Garman and Klass(1980)]{garman1980}
+Mark~B. Garman and Michael~J. Klass.
+\newblock On the estimation of security price volatilities from historical
+  data.
+\newblock \emph{Journal of Business}, 53\penalty0 (1):\penalty0 67--78, 1980.
+
+\bibitem[Glosten and Milgrom(1985)]{glosten1985}
+Lawrence~R. Glosten and Paul~R. Milgrom.
+\newblock Bid, ask and transaction prices in a specialist market with
+  heterogeneously informed traders.
+\newblock \emph{Journal of Financial Economics}, 14\penalty0 (1):\penalty0
+  71--100, 1985.
+
+\bibitem[Goyenko et~al.(2009)Goyenko, Holden, and Trzcinka]{goyenko2009}
+Ruslan~Y. Goyenko, Craig~W. Holden, and Charles~A. Trzcinka.
+\newblock Do liquidity measures measure liquidity?
+\newblock \emph{Journal of Financial Economics}, 92\penalty0 (2):\penalty0
+  153--181, 2009.
+
+\bibitem[Gu et~al.(2020)Gu, Kelly, and Xiu]{gu2020}
+Shihao Gu, Bryan Kelly, and Dacheng Xiu.
+\newblock Empirical asset pricing via machine learning.
+\newblock \emph{Review of Financial Studies}, 33\penalty0 (5):\penalty0
+  2223--2273, 2020.
+
+\bibitem[Harvey et~al.(2016)Harvey, Liu, and Zhu]{harvey2016}
+Campbell~R. Harvey, Yan Liu, and Heqing Zhu.
+\newblock \ldots and the cross-section of expected returns.
+\newblock \emph{Review of Financial Studies}, 29\penalty0 (1):\penalty0 5--68,
+  2016.
+
+\bibitem[Jahan-Parvar and Zikes(2023)]{jahanparvar2023}
+Mohammad~R. Jahan-Parvar and Filip Zikes.
+\newblock When do low-frequency measures really measure effective spreads?
+  {E}vidence from equity and foreign exchange markets.
+\newblock \emph{Review of Financial Studies}, 36\penalty0 (10):\penalty0
+  4190--4232, 2023.
+
+\bibitem[Jegadeesh and Titman(1993)]{jegadeesh1993}
+Narasimhan Jegadeesh and Sheridan Titman.
+\newblock Returns to buying winners and selling losers: Implications for stock
+  market efficiency.
+\newblock \emph{Journal of Finance}, 48\penalty0 (1):\penalty0 65--91, 1993.
+
+\bibitem[Kolm et~al.(2023)Kolm, Turiel, and Westray]{kolm2023}
+Petter~N. Kolm, Jeremy Turiel, and Nicholas Westray.
+\newblock Deep order flow imbalance: Extracting alpha at multiple horizons from
+  the limit order book.
+\newblock \emph{Mathematical Finance}, 33\penalty0 (4):\penalty0 1044--1081,
+  2023.
+
+\bibitem[K{\"u}nsch(1989)]{kunsch1989}
+Hans~R. K{\"u}nsch.
+\newblock The jackknife and the bootstrap for general stationary observations.
+\newblock \emph{Annals of Statistics}, 17\penalty0 (3):\penalty0 1217--1241,
+  1989.
+
+\bibitem[Kyle(1985)]{kyle1985}
+Albert~S. Kyle.
+\newblock Continuous auctions and insider trading.
+\newblock \emph{Econometrica}, 53\penalty0 (6):\penalty0 1315--1335, 1985.
+
+\bibitem[Lee and Ready(1991)]{leeready1991}
+Charles M.~C. Lee and Mark~J. Ready.
+\newblock Inferring trade direction from intraday data.
+\newblock \emph{Journal of Finance}, 46\penalty0 (2):\penalty0 733--746, 1991.
+
+\bibitem[Liu and Tsyvinski(2021)]{liu2021}
+Yukun Liu and Aleh Tsyvinski.
+\newblock Risks and returns of cryptocurrency.
+\newblock \emph{Review of Financial Studies}, 34\penalty0 (6):\penalty0
+  2689--2727, 2021.
+
+\bibitem[Makarov and Schoar(2020)]{makarov2020}
+Igor Makarov and Antoinette Schoar.
+\newblock Trading and arbitrage in cryptocurrency markets.
+\newblock \emph{Journal of Financial Economics}, 135\penalty0 (2):\penalty0
+  293--319, 2020.
+
+\bibitem[Newey and West(1987)]{newey1987}
+Whitney~K. Newey and Kenneth~D. West.
+\newblock A simple, positive semi-definite, heteroskedasticity and
+  autocorrelation consistent covariance matrix.
+\newblock \emph{Econometrica}, 55\penalty0 (3):\penalty0 703--708, 1987.
+
+\bibitem[Panayides et~al.(2019)Panayides, Shohfi, and Smith]{panayides2019}
+Marios~A. Panayides, Thomas~D. Shohfi, and Jared~D. Smith.
+\newblock Bulk volume classification and information detection.
+\newblock \emph{Journal of Banking \& Finance}, 103:\penalty0 113--129, 2019.
+
+\bibitem[Rogers and Satchell(1991)]{rogers1991}
+L.~C.~G. Rogers and S.~E. Satchell.
+\newblock Estimating variance from high, low and closing prices.
+\newblock \emph{Annals of Applied Probability}, 1\penalty0 (4):\penalty0
+  504--512, 1991.
+
+\bibitem[Roll(1984)]{roll1984}
+Richard Roll.
+\newblock A simple implicit measure of the effective bid-ask spread in an
+  efficient market.
+\newblock \emph{Journal of Finance}, 39\penalty0 (4):\penalty0 1127--1139,
+  1984.
+
+\bibitem[Welch and Goyal(2008)]{goyal2008}
+Ivo Welch and Amit Goyal.
+\newblock A comprehensive look at the empirical performance of equity premium
+  prediction.
+\newblock \emph{Review of Financial Studies}, 21\penalty0 (4):\penalty0
+  1455--1508, 2008.
+
+\bibitem[Yang and Zhang(2000)]{yang2000}
+Dennis Yang and Qiang Zhang.
+\newblock Drift-independent volatility estimation based on high, low, open, and
+  close prices.
+\newblock \emph{Journal of Business}, 73\penalty0 (3):\penalty0 477--491, 2000.
+
+\end{thebibliography}

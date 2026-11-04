@@ -1,0 +1,12 @@
+\begin{tabular}{llrrrrrr}
+\toprule
+model & vs & nested & R2oos_rel_% & CW_t & CW_p & DM_t & DM_p \\
+\midrule
+enet_ALL & enet_TI & True & 0.030 & 2.410 & 0.008 & 0.330 & 0.741 \\
+enet_MS & enet_TI & True & 0.050 & 2.850 & 0.002 & 0.546 & 0.585 \\
+enet_MS & enet_MSproxy & True & 0.133 & 2.591 & 0.005 & 1.533 & 0.125 \\
+enet_MSproxy & enet_TI & True & -0.084 & 1.491 & 0.068 & -0.713 & 0.476 \\
+gbm_ALL & enet_TI & True & -0.207 & 1.727 & 0.042 & -0.882 & 0.378 \\
+enet_FLOWtrue & enet_FLOWproxy & False & 0.045 & -- & -- & 0.969 & 0.332 \\
+\bottomrule
+\end{tabular}
