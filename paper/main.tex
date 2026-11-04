@@ -6,12 +6,14 @@
 \usepackage[authoryear,round]{natbib}
 \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
 \usepackage{setspace}\setstretch{1.12}
+\usepackage[section]{placeins}
+\usepackage{xurl}
 \captionsetup{font=small,labelfont=bf}
 \graphicspath{{figures/}{../results/BTCUSDT_1H/figures/}}
 \input{tables/numbers}
 \newcommand{\tabnote}[1]{\par\vspace{2pt}{\footnotesize\noindent #1\par}}
 
-\title{What Bars Cannot See: Order Flow, Its OHLCV Proxies, and\\Short-Horizon Bitcoin Returns}
+\title{What Bars Cannot See: Order Flow, Fee-Free Volume,\\and OHLCV Microstructure Proxies}
 \author{Seyed Abolfazl Hosseini\thanks{Department of Industrial Engineering, Ferdowsi University of Mashhad.
 Email: \texttt{hosseini.systems@gmail.com}. Code and data access:
 \url{https://github.com/a0x0h/what-bars-cannot-see}.}}
@@ -21,34 +23,30 @@ Email: \texttt{hosseini.systems@gmail.com}. Code and data access:
 \maketitle
 
 \begin{abstract}
-\noindent Microstructure variables built from open-high-low-close-volume (OHLCV) bars, such as bulk
-volume classification (BVC), Kyle's lambda and high-low spread estimators, are widely used when
-trade-level data are unavailable. We test what they measure and what they predict, using almost five
-years of hourly and one-minute Binance bars for BTC/USDT and ETH/USDT in which the exchange reports
-the aggressor-side (taker) volume of every bar, so the true signed order flow is observed. First,
-range-based volatility is measured almost perfectly (correlation \BTCgkCorr{} with one-minute realised
-volatility), but signed flow is not: hourly BVC imbalance has a correlation of \BTCbvcCorr{} with
-observed imbalance, and a nonparametric bound shows that no function of the bar's own return explains
-more than about a quarter of its variance (\BTCceilIS). Spread estimators are dominated by volatility,
-with medians four orders of magnitude above the one-tick minimum spread. These results are nearly
-identical for both assets. Second, in BTC, a one standard deviation taker-imbalance shock is followed
-by a price decline of about \BTCfrTakAtwo{} basis points over two hours ($t=\BTCfrTakTtwo$), robust to
-return, volume and volatility controls and stable across sub-samples. This information lies in the
-part of flow that leaves no trace in the hourly bar: predictive content rises with measurement
-accuracy, from none for hourly BVC, to part for BVC on one-minute bars, to all for observed flow,
-which subsumes the proxy. Used alone in a monthly walk-forward, observed imbalance forecasts BTC
-returns out of sample (Clark-West $p=\BTCspPtwo$); in ETH the effect is weaker and not significant.
-Third, the information is economically negligible. Its break-even trading cost is about one basis
-point; no multivariate model on microstructure proxies, observed flow or realised measures beats a
-zero forecast over \BTCnFoldsWF{} leakage-controlled test months; and the best of \BTCnTrials{}
-trading rules is insignificant once selection is accounted for (deflated Sharpe ratio \BTCbestDSR).
-We also document that a zero-fee promotion multiplied BTC trade counts fivefold while collapsing the
-dispersion of aggressor imbalance, a warning for research using fee-free periods.
+\noindent Microstructure measures built from open-high-low-close-volume (OHLCV) bars, such as bulk
+volume classification (BVC), Kyle's lambda, the Amihud ratio, VPIN and high-low spread estimators,
+are used whenever trade-level data are unavailable. Binance reports the aggressor-side (taker) volume
+of every bar, so the signed order flow these measures target is observed. Using hourly and one-minute
+bars for twenty cryptocurrencies from 2022 to 2026, we establish three results. First, bars measure
+volatility almost perfectly but order flow poorly: in nineteen of the twenty coins no function of the
+bar's own return explains more than about a quarter of the variance of hourly aggressor imbalance
+(\BTCceilIS{} for bitcoin), and BVC is close to this bound. Second, a natural experiment shows that volume-based measures mistake volume for
+liquidity. When Binance removed all fees on bitcoin pairs for eight months, trades on BTC/USDT rose by
+a factor of \feeOnTradesX{} relative to nineteen control coins and fell back at the hour fees
+returned, and \feeExcessTwoShare{} of the additional volume was offset by opposite aggressor flow
+within the same minute. The Amihud ratio and BVC-based Kyle's lambda fell by \feeOnAmihudPctA\% and
+\feeOnLamBvcPctA\%, signalling a large gain in liquidity, while the price impact of a dollar of
+observed net flow did not fall (its change, \feeOnLamTruePct\%, is not significant); the same
+balanced volume then moved from pair to pair as the promotion moved. Third, the part of order flow that bars cannot see is the part that
+predicts prices: aggressor imbalance is followed by a reversal of about a basis point over two hours,
+driven by market-wide flow, which observed flow detects out of sample and hourly BVC does not, but
+which is far too small to trade on. Bar-based flow and liquidity measures are better read as measures
+of volatility and volume.
 \end{abstract}
 
-\noindent\textbf{Keywords:} order flow, bulk volume classification, liquidity proxies, cryptocurrency,
-return predictability, out-of-sample evaluation, transaction costs\\
-\textbf{JEL:} G12, G14, G17, C53, C58
+\noindent\textbf{Keywords:} order flow, bulk volume classification, liquidity measures, trading fees,
+natural experiment, wash trading, cryptocurrency, return predictability\\
+\textbf{JEL:} G12, G14, G18, C58
 
 \newpage
 \section{Introduction}
@@ -66,84 +64,97 @@ according to the standardised price change \citep{easley2012,easley2016}. These 
 increasingly used as features in machine-learning forecasts of returns, including in cryptocurrency
 markets \citep{easley2021machine,easley2024crypto}.
 
-Two questions are rarely asked together. How much of the underlying quantity do bar-based proxies
-capture? And does what they capture, or the true quantity itself, predict returns once the
-evaluation is free of look-ahead and the signals are priced at realistic costs? We answer both in a
-setting where the ground truth is observed. Binance, the largest cryptocurrency spot exchange,
-publishes for every bar the volume executed by buyer-initiated (taker) orders. The signed order flow
-of every hour and every minute is therefore known. We verify on one month of trade-level data that
-the bar-level taker volume reproduces trade-level aggressor flow exactly (correlation
-\aggCorr{} over \aggHours{} hours). We use hourly and one-minute bars for BTC/USDT and ETH/USDT from
-January 2022 to October 2026, about 42{,}000 hours and 2.5 million minutes per asset.
+Three questions are rarely asked together. How much of the underlying quantity do bar-based proxies
+capture? Can they tell liquidity from volume when the composition of trading changes? And does the
+part of order flow they miss matter for prices? We answer them in a setting where the ground truth is
+observed. Binance, the largest cryptocurrency spot exchange, publishes for every bar the volume
+executed by buyer-initiated (taker) orders, so the signed order flow of every hour and every minute
+is known. We verify on one month of trade-level data that the bar-level taker volume reproduces
+trade-level aggressor flow exactly (correlation \aggCorr{} over \aggHours{} hours). We use hourly and
+one-minute bars for twenty coins from January 2022 to October 2026, about 42{,}000 hours and
+2.5 million minutes per coin, and an eight-month period in which Binance charged no fees on bitcoin
+pairs as a natural experiment.
 
 \paragraph{Measurement.} We score each proxy against its observed counterpart. Range-based
 volatility from hourly bars has a correlation of \BTCgkCorr{} with realised volatility from
-one-minute returns, so bar data measure volatility well. Signed flow is another matter. Hourly BVC
-imbalance has a correlation of \BTCbvcCorr{} with observed taker imbalance and the correct sign in
-\BTCbvcSign{} of hours; summing BVC over one-minute bars raises the correlation to
-\BTCbvcOneMinCorr. Neither the choice of volatility window nor a heavy-tailed distribution helps.
-The reason is not the functional form. BVC and the tick rule are functions of the bar's standardised
+one-minute returns for bitcoin and at least \panelGkMin{} for every coin, so bars measure volatility
+well. Signed flow is another matter. For bitcoin, hourly BVC imbalance has a correlation of
+\BTCbvcCorr{} with observed taker imbalance and the correct sign in \BTCbvcSign{} of hours. The
+reason is not the functional form. BVC and the tick rule are functions of the bar's standardised
 return, and we show nonparametrically that \emph{no} such function explains more than \BTCceilIS{} of
-the variance of hourly taker imbalance (\BTCceilISm{} on one-minute bars), even in sample. BVC is
-already close to this bound, so better calibration cannot help much, and its scale drifts over time.
-Most aggressor flow is absorbed without moving the bar's price. Kyle's lambda computed from BVC-signed volume inherits the
-error and has a correlation of only \BTClambdaCorr{} with lambda from observed flow. Spread
-estimators fare worst: on a market whose minimum (one-tick) spread is about \BTCtick{} basis points, the
-Corwin-Schultz estimate has a median of \BTCcsMedian{} basis points and moves with volatility
-(correlation \BTCcsVolCorr), the extreme case of the bias described by \citet{jahanparvar2023}.
+the variance of hourly taker imbalance (\BTCceilISm{} on one-minute bars), even in sample. Across the
+twenty coins the bound lies between \panelCeilMin{} and \panelCeilSecond, lowest for the least traded
+coins, with one exception (\panelCeilMaxCoin, \panelCeilMax). BVC is close to the bound everywhere, so
+better calibration cannot help much, and its scale drifts over time. Most aggressor flow is absorbed without moving the bar's price. Kyle's lambda
+from BVC-signed volume inherits the error, and spread estimators measure volatility: on a market
+whose minimum (one-tick) spread is about \BTCtick{} basis points, the Corwin-Schultz estimate has a
+median of \BTCcsMedian{} basis points, the extreme case of the bias described by
+\citet{jahanparvar2023}.
 
-\paragraph{Information.} In BTC, observed flow is informative about future prices, but in a specific
-way. A one standard deviation increase in hourly taker imbalance is followed by a price decline of
-\BTCfrTakAtwo{} basis points over the next two hours ($t=\BTCfrTakTtwo$) that fades within a day,
-the signature of transient price impact or of informed passive liquidity. The reversal is of similar
-size under standard fees and in both halves of the sample, and it survives controls for lagged
-returns, momentum, volume and volatility. Holding the bar's own return fixed, the coefficient on
-observed imbalance is unchanged, while the return itself has no predictive power. The information in
-order flow therefore resides in the part that leaves no trace in the hourly bar's price, which hourly
-BVC cannot recover and which, consistently, it does not predict. BVC on one-minute bars recovers part
-of the signal, and observed flow subsumes it in a direct comparison: predictive content rises with
-measurement accuracy. Where flow is informative, measurement error in the proxy is not innocuous. In
-ETH the reversal has the same sign in most sub-samples but is about half as large and not significant.
+\paragraph{Volume is not liquidity.} A change in trading fees separates volume from order flow,
+because a fee is a cost per unit of volume, not per unit of information. From 14:00 UTC on 8 July
+2022 to 00:00 UTC on 22 March 2023 Binance charged no fees on BTC/USDT and twelve other bitcoin pairs,
+while the USDT pairs of other coins paid standard fees. We compare BTC/USDT with nineteen control
+coins in event windows around both switches, and use permutation tests across coins and over time
+because there is a single treated unit \citep{conley2011,abadie2010}. Removing fees multiplied the
+number of trades by \feeOnTradesX{} relative to the controls, and the effect started in the hour fees
+were removed and reversed in the hour they returned. Almost all of the new volume was two-sided:
+\feeExcessTwoShare{} of the excess dollar volume was offset by opposite aggressor flow within the same
+minute, and in trade-level data the share of volume offset within the same second doubled. The
+Amihud ratio fell by \feeOnAmihudPctA\% and Kyle's lambda from BVC-signed flow by
+\feeOnLamBvcPctA\%, as if the market had become much more liquid. Price impact per dollar of observed
+net flow did not fall (it changed by \feeOnLamTruePct\%, which is not significant), and order-book
+evidence shows that spreads widened and depth fell \citep{galati2024}. VPIN computed with BVC barely
+moved, while VPIN computed from observed flow fell by \feeOnVpinTruePctA\%. When the zero-fee
+promotion was narrowed to BTC/TUSD and later moved to BTC/FDUSD, the same high-volume,
+balanced-flow signature moved with it. Bar-based measures cannot distinguish volume that moves prices
+from volume that is offset within the minute, and the latter responds to fees and incentives rather
+than to information.
+
+\paragraph{Information.} Observed flow is informative about future prices, in a specific way. For
+bitcoin, a one standard deviation increase in hourly taker imbalance is followed by a price decline of
+\BTCfrTakAtwo{} basis points over the next two hours ($t=\BTCfrTakTtwo$) that fades within a day. The
+reversal survives controls for lagged returns, momentum, volume and volatility, is of similar size
+in both halves of the sample and under standard fees, and is unchanged when the bar's own return is
+held fixed, while the return itself has no predictive power. The information therefore resides in
+the part of flow that leaves no trace in the hourly bar, which hourly BVC cannot recover and,
+consistently, does not predict; BVC on one-minute bars recovers part of it, and observed flow
+subsumes it. Across the twenty coins the response is negative for \panelNnegtwo{}, and the pooled
+estimate is \poolAllBtwo{} basis points ($t=\poolAllTtwo$ with Driscoll-Kraay standard errors). The
+reversal follows market-wide imbalance; coin-specific imbalance does not predict coin-specific
+returns.
 
 \paragraph{Prediction and economic value.} The effect is statistically detectable but economically
-tiny, explaining about \BTCfrRtwoFour\% of the variance of four-hour returns. We confirm this in a
-monthly walk-forward evaluation in which every model is re-estimated on purged training data,
-preprocessing and hyper-parameters are chosen inside each training window, and automated tests
-verify that no feature uses future data. Over \BTCnFoldsWF{} out-of-sample months, none of
-\BTCnModels{} elastic-net and gradient-boosting specifications for BTC, built on technical
-indicators, microstructure proxies, observed flow, realised measures or all of them, beats the naive
-zero forecast in mean squared error. Clark-West tests detect that microstructure variables add some
-information to technical indicators in nested comparisons, but the gains are too small to survive
-estimation error, and cross-validation inside each training window selects the empty model in most
-months. For ETH, and for BTC at horizons of one, eight and 24 hours, a technical-indicator model achieves
-a small positive out-of-sample $R^2$ of about a tenth of a percent, and adding microstructure
-variables never improves on it. A one-variable model with observed taker imbalance alone, by contrast, has a small but significant
-out-of-sample $R^2$ for BTC (\BTCspRtwo\% at two hours, Clark-West $p=\BTCspPtwo$), while the same
-model with hourly BVC imbalance has none: the signal is detectable out of sample when flow is
-measured and absent when it is proxied from hourly bars, and multivariate shrinkage on a short
-validation block discards it. Traded on its own, it breaks even at about one basis point per unit of
-turnover. Turning the multivariate forecasts into an overlapping-sleeve trading rule, the best
-of \BTCnTrials{} model and rule combinations for BTC has a gross Sharpe ratio of \BTCbestSR{} and a
-break-even cost of \BTCbestBE{} basis points, but its deflated Sharpe ratio \citep{bailey2014} is
-\BTCbestDSR{} and its sign changes across years.
+tiny. A one-variable model with observed imbalance has a small but significant out-of-sample $R^2$
+for bitcoin (\BTCspRtwo\% at two hours, Clark-West $p=\BTCspPtwo$) and breaks even at about one basis
+point per unit of turnover. In a monthly walk-forward evaluation with purged training data, tuning
+inside each training window and automated leakage tests, none of \BTCnModels{} elastic-net and
+gradient-boosting specifications built on technical indicators, microstructure proxies, observed flow
+or realised measures beats the naive zero forecast over \BTCnFoldsWF{} test months, and the best of
+\BTCnTrials{} trading rules has a deflated Sharpe ratio \citep{bailey2014} of \BTCbestDSR.
 
-\paragraph{Contributions.} First, we provide what is, to our knowledge, the longest direct validation
-of bar-based order-flow, price-impact, volatility and spread proxies against exchange-reported
-aggressor flow, and an information ceiling that applies to every return-based classifier, not only to
-BVC. Second, we show that, where order flow predicts intraday returns, its predictive content lies in
-the component that bar-based proxies cannot see, which links the measurement and the prediction
-literatures. Third, we document a natural experiment in data quality: during Binance's zero-fee
-promotion on BTC/USDT, hourly trade counts rose more than fivefold while the dispersion of aggressor
-imbalance fell by four-fifths, consistent with costless round-trip trading, and ETH/USDT, which was
-not included, was unaffected. Fourth, we release a fully reproducible pipeline with leakage tests, so the
-negative forecasting results can be checked rather than taken on trust.
+\paragraph{Contributions.} First, we provide what is, to our knowledge, the broadest direct
+validation of bar-based order-flow, price-impact, volatility and spread proxies against
+exchange-reported aggressor flow, twenty coins over almost five years, with an information ceiling
+that applies to every classifier based on the bar's return. Second, we use a fee change with
+untreated controls, known switch hours in both directions and the migration of the promotion across
+pairs to show what kind of volume fee-free trading creates and how bar-based liquidity and toxicity
+measures misread it. Two recent studies use the same event to study spreads, depth and the
+informativeness of order flow \citep{galati2024,bozzetto2026}; our question is different: what the
+event does to the measures that can be computed from bars, which is all that much empirical work
+has. Third, we show that where
+order flow predicts intraday returns, its predictive content lies in the component that bar-based
+proxies cannot see, and that it is market-wide. Fourth, we release a fully reproducible pipeline with
+leakage tests, so that every result, including the negative forecasting results, can be checked
+rather than taken on trust.
 
 The rest of the paper is organised as follows. Section~\ref{sec:lit} reviews related work.
 Section~\ref{sec:data} describes the data and the institutional setting, Section~\ref{sec:measures}
-defines the measures, and Section~\ref{sec:validation} validates the proxies.
-Section~\ref{sec:response} studies what observed and proxy flow tell us about future prices.
-Section~\ref{sec:forecast} reports the out-of-sample forecasting and trading results,
-Section~\ref{sec:robust} the robustness checks, and Section~\ref{sec:conclusion} concludes.
+defines the measures, and Section~\ref{sec:validation} validates the proxies on bitcoin and on twenty
+coins. Section~\ref{sec:fee} studies the zero-fee natural experiment. Section~\ref{sec:response}
+asks what observed and proxy flow tell us about future prices, Section~\ref{sec:forecast} reports
+the out-of-sample forecasting and trading results, Section~\ref{sec:robust} the robustness checks,
+Section~\ref{sec:discussion} discusses limitations and Section~\ref{sec:conclusion} concludes.
 
 \input{sec_literature}
 
@@ -165,26 +176,27 @@ BTC/USDT, signing each by its buyer-maker flag, and summing to the hour. The hou
 from trades and from klines has a correlation of \aggCorr{} and a mean absolute difference of
 \aggMAD{} over \aggHours{} hours.
 
-\paragraph{Tick size and fees.} Both pairs trade with a tick of 0.01 USDT, about \BTCtick{} basis
-points for BTC and \ETHtick{} for ETH at median sample prices, which is the minimum possible quoted
-spread. The standard spot fee
-for regular accounts is 10 basis points per side, reduced for high-volume tiers and fee discounts. From 8 July 2022 to 22 March 2023 Binance waived all fees on BTC/USDT and other
-BTC pairs, but not on ETH/USDT. Figure~\ref{fig:fees} shows the effect. The median number of trades
-per hour on BTC/USDT rose from \BTCtradesPre{} in the first half of 2022 to \BTCtradesZero{} during
-the promotion and fell to \BTCtradesPost{} after it ended, with median hourly dollar volume moving
-from \$\BTCdvolPre{} million to \$\BTCdvolZero{} million and back to \$\BTCdvolPost{} million. On
-ETH/USDT the median trade count was \ETHtradesPre{}, \ETHtradesZero{} and \ETHtradesPost{} over the
-same windows. Zero fees make round-trip and self-matching trades costless, which is the setting in
-which \citet{cong2023} document wash trading on unregulated venues. We therefore treat the promotion
-as a separate regime throughout.
+\paragraph{Twenty coins and other bitcoin pairs.} To test whether the results generalise, and to
+build a control group for the natural experiment of Section~\ref{sec:fee}, we download the same
+hourly and one-minute bars for the USDT pairs of eighteen further coins that were listed on Binance
+throughout the sample: BNB, XRP, ADA, SOL, DOGE, LTC, TRX, LINK, DOT, AVAX, BCH, ATOM, ETC, XLM,
+UNI, FIL, NEAR and ALGO. With BTC and ETH they span median hourly dollar volumes from about
+\$\panelVolMin{} million to \$\panelVolMax{} million. For Section~\ref{sec:fee} we also use hourly
+bars of bitcoin quoted in other stablecoins (BTC/BUSD, BTC/TUSD, BTC/FDUSD and BTC/USDC) and every
+aggregated trade of BTC/USDT and ETH/USDT on the two days before and the two days after each fee
+switch.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.85\textwidth]{fig_fee_regime.png}
-\caption{Hourly trade counts, weekly medians (log scale). The shaded window is Binance's zero-fee
-promotion on BTC pairs (8 July 2022 to 22 March 2023); ETH/USDT was not included.}
-\label{fig:fees}
-\end{figure}
+\paragraph{Tick size and fees.} BTC/USDT and ETH/USDT trade with a tick of 0.01 USDT, about
+\BTCtick{} basis points for BTC and \ETHtick{} for ETH at median sample prices, which is the minimum
+possible quoted spread. The standard spot fee for regular accounts is 10 basis points per side,
+reduced for high-volume tiers and fee discounts. From 14:00 UTC on 8 July 2022 to 00:00 UTC on
+22 March 2023 Binance charged no fees on BTC/USDT and twelve other bitcoin pairs, while the USDT
+pairs of all other coins kept their fees. The median number of trades per hour on BTC/USDT rose from
+\BTCtradesPre{} before the promotion to \BTCtradesZero{} during it and fell to \BTCtradesPost{} after
+it ended, with median hourly dollar volume moving from \$\BTCdvolPre{} million to \$\BTCdvolZero{}
+million and back to \$\BTCdvolPost{} million. On ETH/USDT the median trade count was \ETHtradesPre{},
+\ETHtradesZero{} and \ETHtradesPost{} over the same windows. Section~\ref{sec:fee} studies this episode
+as a natural experiment; elsewhere we report results with and without the promotion.
 
 \paragraph{Descriptive statistics.} Table~\ref{tab:descriptive} summarises the two series. Hourly
 log returns have a standard deviation of about 54 basis points for BTC and 71 for ETH, with fat
@@ -241,6 +253,8 @@ nested, which the incremental tests exploit; the two flow sets differ only in th
 
 \input{sec_validation}
 
+\input{sec_fee}
+
 \input{sec_response}
 
 \input{sec_forecast}
@@ -258,36 +272,58 @@ show is that, at hourly sampling and a four-hour horizon, the predictable compon
 returns linked to these variables is a fraction of a basis point per hour, an order of magnitude below
 the cost of trading on it.
 
+\paragraph{The natural experiment.} The fee experiment has one treated unit, and the main threat is
+a bitcoin-specific shock that coincided with a switch. Three features of the evidence make this
+unlikely: the breaks occur in the hour of each switch, the restoration reverses what the removal
+created, and the same balanced-volume signature appears on whichever bitcoin pair is free at the
+time. The experiment identifies the response of trading to the removal of fees on one exchange, at a
+time when other venues charged fees; a market-wide fee change could produce different flows. We
+cannot say who traded the two-sided volume. High-frequency market makers trading with each other,
+arbitrageurs across the bitcoin pairs, traders building volume for fee tiers and wash traders would
+all produce balanced flow, and aggressor flags cannot separate them. Our conclusion about the
+measures does not depend on the answer: whoever traded it, the volume carried no net direction and
+did not change the price impact of directional flow, yet volume-based measures read it as liquidity.
+
 \paragraph{Limitations.} We do not observe the limit order book, so we cannot measure quoted or
 effective spreads directly or compute order-flow imbalance at the best quotes \citep{cont2014}, which
-is known to have predictive content at horizons of seconds to minutes \citep{kolm2023}. Our results
-therefore speak to bar-based and aggregated trade data, not to high-frequency order-book signals. We
-study one exchange; aggressor flow on Binance is a large but partial view of a fragmented market
-\citep{makarov2020}, and cross-venue flow may be more informative. Taker flags identify the
-aggressor, not the informed party, and in markets with sophisticated liquidity providers the passive
-side may be better informed, which is one reading of the reversal in Section~\ref{sec:response}.
-Finally, the feature sets, models, walk-forward design and trading rules were fixed before
-estimation, and we report every specification we ran. The flow-response regressions of
-Section~\ref{sec:response} and the single-predictor test of Section~\ref{sec:forecast} were added
-after the first results pointed to observed imbalance. The former are descriptive; the latter,
-although estimated strictly out of sample, should be read with this sequence and the number of
-candidate features in mind.
+is known to have predictive content at horizons of seconds to minutes \citep{kolm2023}; for the effect
+of zero fees on spreads and depth we rely on \citet{galati2024}. Our results therefore speak to
+bar-based and aggregated trade data, not to high-frequency order-book signals. We study one exchange;
+aggressor flow on Binance is a large but partial view of a fragmented market \citep{makarov2020}, and
+cross-venue flow may be more informative. Taker flags identify the aggressor, not the informed party,
+and in markets with sophisticated liquidity providers the passive side may be better informed, which
+is one reading of the reversal in Section~\ref{sec:response}. Finally, the feature sets, models,
+walk-forward design and trading rules were fixed before estimation, and we report every specification
+we ran. The flow-response regressions of Section~\ref{sec:response}, the single-predictor test of
+Section~\ref{sec:forecast}, the twenty-coin panel and the fee experiment were added after the first
+results pointed to observed imbalance and to the zero-fee period. The flow-response regressions are
+descriptive; the single-predictor test, although estimated strictly out of sample, should be read
+with this sequence and the number of candidate features in mind. The fee experiment was designed
+around switch dates fixed by the exchange, and we report every outcome we computed.
 
 \section{Conclusion}\label{sec:conclusion}
 
 Exchange-reported aggressor volume lets us check what bar-based microstructure variables measure. In
-hourly Bitcoin and Ether data they measure volatility very well and order flow poorly, and the part of
-the flow they miss is precisely the part that, in Bitcoin, carries information about future prices.
-That information is real but small: it implies a reversal of one to two basis points over a few hours,
-which a single-variable model detects out of sample but multivariate models discard, and which does
-not survive transaction costs or a
-correction for the number of strategies tried. For researchers, the implication is that BVC-based
-imbalance, VPIN and Kyle's lambda computed from bars should not be interpreted as measures of order
-flow when the aggressor side is available; that, when it is not, BVC should be computed on the finest
-bars available and recalibrated as its scale drifts; and that high-low spread estimators on liquid
-crypto pairs measure volatility. For forecasting, the binding constraint at this horizon is not model complexity
-but the size of the signal relative to costs. Order-book data at higher frequency, and flow measured
-across venues, are the natural next steps.
+twenty cryptocurrencies they measure volatility very well and order flow poorly: in nineteen of them
+no function of the hourly bar's return explains more than about a quarter of aggressor imbalance,
+and less for thinly traded coins. Volume-based measures also confuse volume with liquidity. When Binance removed trading
+fees on bitcoin, two-sided volume multiplied, the Amihud ratio and BVC-based Kyle's lambda signalled a
+market several times more liquid, and the price impact of a dollar of directional order flow barely
+changed; the effects appeared and disappeared at the hour of each fee switch and followed the
+promotion across pairs. Finally, the part of the flow that bars miss is the part that carries
+information about future prices: market-wide aggressor imbalance is followed by a small reversal,
+which a single-variable model detects out of sample but which does not survive transaction costs.
+
+For researchers, the implications are concrete. BVC-based imbalance, VPIN and Kyle's lambda computed
+from bars should not be interpreted as measures of order flow when the aggressor side is available;
+when it is not, BVC should be computed on the finest bars available and recalibrated as its scale
+drifts. Volume-based liquidity measures are not comparable across fee regimes, exchanges or periods
+with different incentives to trade for its own sake, a serious concern in cryptocurrency markets with
+volume-based fee tiers, fee promotions and wash trading. High-low spread estimators on liquid
+crypto pairs measure volatility. For forecasting, the binding constraint at this horizon is not
+model complexity but the size of the signal relative to costs. Order-book data at higher frequency,
+flow measured across venues, and the identity of the traders behind two-sided volume are the natural
+next steps.
 
 \paragraph{Data and code availability.} All data are public and are downloaded by the scripts in the
 replication package, which also contains the leakage tests and reproduces every table and figure:

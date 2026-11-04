@@ -69,6 +69,28 @@ Clark-West $t$-statistic above 10, the BVC-flow model about zero, and the techni
 $R^2$. A pipeline that leaked future information would instead show gains for every feature set. The
 script \texttt{scripts/make\_synthetic.py} generates the series.
 
+\section{Zero-fee experiment: robustness}\label{app:fee}
+
+\begin{table}[H]
+\centering\caption{Effects of removing and restoring fees: alternative specifications}\label{tab:feerobust}
+\resizebox{\textwidth}{!}{\input{tables/tab_fee_robust}}
+\tabnote{Change in the BTC-minus-control difference, log points for measures in logs; Newey-West
+$t$-statistics in parentheses. Main: \feeNcontrols{} control coins, 90 days on each side of the switch
+(Table~\ref{tab:feedid}). ETH only: ETH/USDT as the single control. 60 and 180 days: shorter and
+longer event windows. Full windows: regression of the daily difference on indicators for the zero-fee
+window (9 July 2022 to 21 March 2023) and the window after it (22 March to 6 September 2023), with
+1 January to 7 July 2022 as the base, without and with a linear time trend.}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{fig_fee_event_study.png}
+\caption{Weekly means of the BTC-minus-control difference for selected daily measures, January 2022 to
+December 2023, relative to the 90 days before the promotion (log points). Shaded: zero fees on
+BTC/USDT.}
+\label{fig:feeevent}
+\end{figure}
+
 \section{Additional tables}
 
 \begin{table}[H]

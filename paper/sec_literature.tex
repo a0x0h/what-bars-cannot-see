@@ -9,10 +9,12 @@ dominates when the true spread is small relative to volatility, and that the bia
 spreads have narrowed. In cryptocurrency markets, \citet{brauneis2021} compare low-frequency
 measures with order-book benchmarks for bitcoin and ether on three exchanges and find that the
 Corwin-Schultz and Abdi-Ranaldo estimators track time variation in liquidity best, while Amihud
-and Kyle-Obizhaeva measures capture levels. We add to this literature in two ways. First, we score
+and Kyle-Obizhaeva measures capture levels. We add to this literature in three ways. First, we score
 proxies of \emph{signed order flow}, not only of spreads, against an exchange-reported ground truth
-over almost five years. Second, we ask whether the measurement error matters for the downstream
-use that motivates many applications, namely short-horizon return forecasting.
+for twenty coins over almost five years. Second, we use a fee change as a controlled shock to the
+composition of volume, which tests whether volume-based liquidity measures track liquidity or merely
+volume. Third, we ask whether the measurement error matters for the downstream use that motivates
+many applications, namely short-horizon return forecasting.
 
 \paragraph{Trade classification and flow toxicity.} When aggressor flags are unavailable, trades are
 signed by the tick rule or by \citet{leeready1991}. \citet{easley2012,easley2016} propose bulk volume
@@ -24,8 +26,27 @@ aggressors less accurately but is more closely related to informed trading and i
 calibration, and \citet{andersen2014} question whether VPIN built on BVC predicts toxicity events.
 These studies use equity or futures data over comparatively short samples. We exploit the fact
 that Binance reports the taker-buy volume of every bar to evaluate BVC on hourly and one-minute bars
-over about 42{,}000 hours per asset, and to bound how much of the true flow any return-based
-classifier can recover.
+over about 42{,}000 hours for each of twenty coins, and to bound how much of the true flow any
+return-based classifier can recover.
+
+\paragraph{Trading fees, fee-free volume and wash trading.} Theory predicts that trading fees shape
+quotes, depth and the mix of traders \citep{colliard2012,foucault2013}, and natural experiments in
+equity markets show that changes in fees and transaction taxes move spreads, depth, volume and market
+composition \citep{malinova2015,colliard2017}. In cryptocurrency markets, \citet{brauneis2022} study
+the introduction of maker fees on Coinbase Pro and find wider quoted spreads, less depth and fewer
+but larger trades. Two recent studies use the Binance promotion that we also exploit.
+\citet{galati2024} shows with order-book data that removing maker and taker fees led market makers to
+widen spreads and reduce depth, so that total transaction costs rose despite the waiver, and raises
+concerns about trading conduct; \citet{bozzetto2026} use the return of fees in March 2023 and
+conclude that zero fees made order flow less informative about prices. We use the same event for a
+different purpose, as a controlled shock to the composition of volume that reveals what bar-based
+measures respond to, with nineteen untreated coins as controls and the restoration of fees as a
+second test. The episode also connects to the literature on fake volume in cryptocurrency markets,
+which detects wash trading with statistical tests \citep{cong2023,amiram2025} and with leaked
+account-level records \citep{aloosh2024}. Aggressor flags do not identify the parties to a trade, so
+we cannot label individual trades as wash trades. We show instead that the volume created by zero
+fees was two-sided within the minute and within the second, and that bar-based measures read it as
+liquidity.
 
 \paragraph{Order flow and short-horizon returns.} Order imbalance predicts short-horizon index
 returns \citep{chordia2002}, order-flow imbalance at the top of the book explains contemporaneous

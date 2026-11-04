@@ -188,10 +188,11 @@ def zero_fee_activity():
             continue
         df = load_ohlcv(p, verbose=False)
         t = df.index
-        windows = {"Pre": ("2022-01-01", "2022-07-08"), "Zero": ("2022-07-08", "2023-03-22"),
-                   "Post": ("2023-03-22", "2023-10-01")}
+        from msr.events import TUSD_OFF, ZERO_FEE_OFF, ZERO_FEE_ON
+        windows = {"Pre": (pd.Timestamp("2022-01-01", tz="UTC"), ZERO_FEE_ON), "Zero": (ZERO_FEE_ON, ZERO_FEE_OFF),
+                   "Post": (ZERO_FEE_OFF, TUSD_OFF)}
         for lab, (a, b) in windows.items():
-            m = (t >= pd.Timestamp(a, tz="UTC")) & (t < pd.Timestamp(b, tz="UTC"))
+            m = (t >= a) & (t < b)
             macro(f"{P}trades{lab}", f"{df.loc[m, 'trades'].median():,.0f}")
             macro(f"{P}dvol{lab}", f"{(df.loc[m, 'close'] * df.loc[m, 'volume']).median() / 1e6:,.0f}")
 
@@ -468,11 +469,264 @@ def ceiling_tables():
         macro(f"{asset}slopeLast", fnum(yrs.slope_imb_on_BVC.iloc[-1], 3))
         macro(f"{asset}sdImbZero", fnum(p1.loc["zero-fee window", "sd_imb"], 3))
         macro(f"{asset}sdImbStd", fnum(p1.loc["standard fees", "sd_imb"], 3))
+        macro(f"{asset}slopeZero", fnum(p1.loc["zero-fee window", "slope_imb_on_BVC"], 3))
+        macro(f"{asset}slopeStd", fnum(p1.loc["standard fees", "slope_imb_on_BVC"], 3))
         s = pd.read_csv(_res(asset) / "table_ceiling_sensitivity.csv")
         s1 = s[(s.bars == "1h") & (s.bins == 50)].set_index("split")
         macro(f"{asset}ceilRev", fnum(s1.loc["fit 2nd, eval 1st", "R2_ceiling"], 2))
     hdr = ("Period & Hours & Ceiling & corr$^2$(BVC) & Slope & SD imb. & Ceiling (1m)")
     write("tab_ceiling_periods", tab("lrrrrrr", hdr, L))
+
+
+# ----------------------------------------------------------------------------------------------
+# Zero-fee natural experiment (results/FEE) and the 20-coin panel (results/PANEL)
+# ----------------------------------------------------------------------------------------------
+FEE_KEYS = {"trades": "Trades", "dvol": "Dvol", "size": "Size", "net1m": "Net", "two_sided": "Two",
+            "ts_share": "Share", "abs_imb_h": "Imb", "rv": "Rv", "amihud": "Amihud", "lam_bvc": "LamBvc",
+            "lam_true": "LamTrue", "r2_true": "Rsq", "corr_bvc": "Corr", "vpin_true": "VpinTrue",
+            "vpin_bvc": "VpinBvc", "ac1": "Ac"}
+FEE_ROWS = [
+    ("Panel A. Trading activity", [("trades", "Trades per day (millions)", lambda v: fnum(v / 1e6, 2)),
+                                   ("dvol", "Dollar volume per day (\\$bn)", lambda v: fnum(v / 1e9, 2)),
+                                   ("size", "Average trade size (\\$)", lambda v: f"{v:,.0f}")]),
+    ("Panel B. Direction of the volume (one-minute taker flow)", [
+        ("net1m", "Directional volume $\\sum_m|B_m-S_m|$ (\\$bn)", lambda v: fnum(v / 1e9, 2)),
+        ("two_sided", "Two-sided volume (\\$bn)", lambda v: fnum(v / 1e9, 2)),
+        ("ts_share", "Two-sided share of volume", lambda v: fnum(v, 2)),
+        ("abs_imb_h", "Mean $|$hourly taker imbalance$|$", lambda v: fnum(v, 3))]),
+    ("Panel C. Liquidity and flow measures computed from bars", [
+        ("amihud", "Amihud ratio, hourly bars ($|r|$ per \\$bn)", lambda v: fnum(v, 3)),
+        ("lam_bvc", "Kyle's $\\lambda$, BVC-signed flow (bps per \\$M)", lambda v: fnum(v, 2)),
+        ("vpin_bvc", "VPIN, BVC", lambda v: fnum(v, 2))]),
+    ("Panel D. The same quantities from observed taker flow", [
+        ("lam_true", "Kyle's $\\lambda$, observed flow (bps per \\$M)", lambda v: fnum(v, 2)),
+        ("vpin_true", "VPIN, observed flow", lambda v: fnum(v, 3)),
+        ("r2_true", "$R^2$ of 1m returns on observed flow", lambda v: fnum(v, 2)),
+        ("corr_bvc", "corr(BVC, observed imbalance), 1m", lambda v: fnum(v, 2))]),
+    ("Panel E. Prices", [("rv", "Realised volatility (\\% per day)", lambda v: fnum(100 * np.sqrt(v), 2)),
+                         ("ac1", "First-order autocorrelation of 1m returns", lambda v: fnum(v, 3))]),
+]
+
+
+def _p(p):
+    return "--" if not np.isfinite(p) else ("$<$0.001" if p < 0.001 else fnum(p, 3))
+
+
+def fee_tables():
+    d = RES / "FEE"
+    if not (d / "table_did.csv").exists():
+        print("skip fee_tables (run run_fee.py)")
+        return
+    did = pd.read_csv(d / "table_did.csv").set_index("outcome")
+    eth = pd.read_csv(d / "table_did_eth.csv").set_index("outcome")
+    d60 = pd.read_csv(d / "table_did_60d.csv").set_index("outcome")
+    d180 = pd.read_csv(d / "table_did_180d.csv").set_index("outcome")
+    L = []
+    for title, rows in FEE_ROWS:
+        L.append(f"\\multicolumn{{10}}{{l}}{{\\emph{{{title}}}}}{NL}")
+        for k, lab, f in rows:
+            r = did.loc[k]
+            L.append(f"{lab} & {f(r.btc_pre)} & {f(r.btc_zero)} & {f(r.btc_post)} & "
+                     f"{fnum(r.on, 2)} ({fnum(r.on_t, 1)}) & {_p(r.p_space_on)} & {_p(r.p_time_on)} & "
+                     f"{fnum(r.off, 2)} ({fnum(r.off_t, 1)}) & {_p(r.p_space_off)} & {_p(r.p_time_off)}{NL}")
+    hdr = (f" & \\multicolumn{{3}}{{c}}{{BTC/USDT, daily median}} & \\multicolumn{{3}}{{c}}{{Fees removed}} & "
+           f"\\multicolumn{{3}}{{c}}{{Fees restored}}{NL}"
+           "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\\cmidrule(lr){8-10}"
+           "Measure & Before & Zero fee & After & $\\Delta$ ($t$) & $p_{\\text{space}}$ & $p_{\\text{time}}$ & "
+           "$\\Delta$ ($t$) & $p_{\\text{space}}$ & $p_{\\text{time}}$")
+    write("tab_fee_did", tab("lrrrrrrrrr", hdr, L))
+
+    # robustness: ETH as the only control, 60- and 180-day windows, full windows with and without trend
+    L = []
+    for ev, title in [("on", "Panel A. Fees removed (8 July 2022)"), ("off", "Panel B. Fees restored (22 March 2023)")]:
+        L.append(f"\\multicolumn{{7}}{{l}}{{\\emph{{{title}}}}}{NL}")
+        for _, rows in FEE_ROWS:
+            for k, lab, _ in rows:
+                cells = [f"{fnum(t.loc[k, ev], 2)} ({fnum(t.loc[k, ev + '_t'], 1)})" for t in (did, eth, d60, d180)]
+                r = did.loc[k]
+                cells += [f"{fnum(r[ev + '_full'], 2)} ({fnum(r[ev + '_full_t'], 1)})",
+                          f"{fnum(r[ev + '_trend'], 2)} ({fnum(r[ev + '_trend_t'], 1)})"]
+                L.append(f"{lab} & " + " & ".join(cells) + NL)
+        if ev == "on":
+            L.append("\\midrule\n")
+    hdr = (f" & \\multicolumn{{4}}{{c}}{{Event windows}} & \\multicolumn{{2}}{{c}}{{Full windows}}{NL}"
+           "\\cmidrule(lr){2-5}\\cmidrule(lr){6-7}"
+           f"Measure & Main (90 days) & ETH only & 60 days & 180 days & Means & With trend")
+    write("tab_fee_robust", tab("lrrrrrr", hdr, L))
+
+    for k, K in FEE_KEYS.items():
+        if k not in did.index:
+            continue
+        r = did.loc[k]
+        for ev in ("on", "off"):
+            E = "On" if ev == "on" else "Off"
+            macro(f"fee{E}{K}", fnum(r[ev], 2))
+            macro(f"fee{E}{K}A", fnum(abs(r[ev]), 2))
+            macro(f"fee{E}{K}T", fnum(r[f"{ev}_t"], 1))
+            macro(f"fee{E}{K}Ps", _p(r[f"p_space_{ev}"]))
+            macro(f"fee{E}{K}Pt", _p(r[f"p_time_{ev}"]))
+            if r["transform"] == "log":
+                macro(f"fee{E}{K}Pct", fnum(100 * (np.exp(r[ev]) - 1), 0))
+                macro(f"fee{E}{K}PctA", fnum(abs(100 * (np.exp(r[ev]) - 1)), 0))
+                macro(f"fee{E}{K}X", fnum(np.exp(r[ev]), 1))
+            macro(f"fee{E}{K}Eth", fnum(eth.loc[k, ev], 2))
+            macro(f"fee{E}{K}EthT", fnum(eth.loc[k, f"{ev}_t"], 1))
+        macro(f"fee{K}Pre", fnum(r.btc_pre, 3)); macro(f"fee{K}Zero", fnum(r.btc_zero, 3)); macro(f"fee{K}Post", fnum(r.btc_post, 3))
+    n_ctrl = len(list((d / "daily").glob("*.csv*"))) - 1
+    macro("feeNcontrols", str(n_ctrl))
+    macro("feeNtime", str(int(did["n_time_placebos"].iloc[0])))
+    macro("feeMinPspace", fnum(1 / (n_ctrl + 1), 2))
+
+    dec = pd.read_csv(d / "table_decomposition.csv", index_col=0)
+    macro("feeExcessTwoShare", pct(dec.loc["two_sided", "share_of_excess_dollar_volume"]))
+    macro("feeExcessNetShare", pct(dec.loc["net1m", "share_of_excess_dollar_volume"]))
+    macro("feeExcessDvol", fnum(dec.loc["dvol", "excess"] / 1e9, 2))
+    macro("feeExcessTrades", fnum(dec.loc["trades", "excess"] / 1e6, 1))
+    macro("feeCtrlGrowth", fnum(dec.loc["dvol", "control_growth"], 2))
+
+    import json
+    j = json.loads((d / "switch_jumps.json").read_text())
+    for ev, E in [("on", "On"), ("off", "Off")]:
+        macro(f"feeJump{E}Trades", fnum(j[ev]["trades"], 2))
+        macro(f"feeJump{E}TradesA", fnum(abs(j[ev]["trades"]), 2))
+        macro(f"feeJump{E}TradesX", fnum(np.exp(j[ev]["trades"]), 2 if j[ev]["trades"] < 0 else 1))
+        macro(f"feeJump{E}Dvol", fnum(j[ev]["dvol"], 2))
+        macro(f"feeJump{E}Imb", fnum(j[ev]["abs_imb"], 2))
+    macro("feeJumpPlaceboMax", fnum(j["placebo_trades_abs_max"], 2))
+    macro("feeJumpPlaceboPnn", fnum(j["placebo_trades_abs_p99"], 2))
+    macro("feeJumpPlaceboN", f"{j['n_placebo_hours_trades']:,}")
+
+    pdl = pd.read_csv(d / "btc_pairs_daily.csv", parse_dates=["day"])
+    f0 = pdl[(pdl.pair == "BTC/FDUSD") & (pdl.dvol > 0)]["day"].min()
+    if pd.notna(f0):
+        macro("pairFdusdStart", f"{f0:%B %Y}")
+    pr = pd.read_csv(d / "table_btc_pairs.csv")
+    wins = list(dict.fromkeys(pr["window"]))
+    dates = ["Jan--Jul 2022", "Jul 2022--Mar 2023", "Mar--Sep 2023", "Sep--Dec 2023"]
+    regimes = ["fees on all", "13 pairs free", "only TUSD free", "FDUSD free"]
+    order = [p for p in ["BTC/USDT", "BTC/BUSD", "BTC/TUSD", "BTC/FDUSD", "BTC/USDC"] if p in set(pr["pair"])]
+
+    def musd(v):
+        return f"{v:,.0f}" if v >= 10 else f"{v:.1f}"
+
+    L = []
+    for p in order:
+        g = pr[pr.pair == p].set_index("window")
+        cells = []
+        for w in wins:
+            r = g.loc[w]
+            cells.append("--" if not r.days else musd(r.median_dvol_musd))
+            cells.append("--" if not r.days else fnum(r.mean_vw_abs_imb, 3))
+        L.append(f"{p} & " + " & ".join(cells) + NL)
+    hdr = (" & " + " & ".join(f"\\multicolumn{{2}}{{c}}{{{w}}}" for w in dates[:len(wins)]) + NL
+           + " & " + " & ".join(f"\\multicolumn{{2}}{{c}}{{\\emph{{{w}}}}}" for w in regimes[:len(wins)]) + NL
+           + "".join(f"\\cmidrule(lr){{{2 + 2 * i}-{3 + 2 * i}}}" for i in range(len(wins)))
+           + "Pair & " + " & ".join(["\\$M/day & $|$imb.$|$"] * len(wins)))
+    write("tab_btc_pairs", tab("l" + "rr" * len(wins), hdr, L))
+    g = pr.set_index(["pair", "window"])
+    for p, P in [("BTC/USDT", "Usdt"), ("BTC/TUSD", "Tusd"), ("BTC/BUSD", "Busd"), ("BTC/FDUSD", "Fdusd")]:
+        for i, w in enumerate(wins):
+            if (p, w) in g.index and g.loc[(p, w), "days"]:
+                macro(f"pair{P}Vol{'ABCD'[i]}", musd(g.loc[(p, w), "median_dvol_musd"]))
+                macro(f"pair{P}Imb{'ABCD'[i]}", fnum(g.loc[(p, w), "mean_vw_abs_imb"], 3))
+
+    f = d / "table_trade_forensics.csv"
+    if f.exists():
+        t = pd.read_csv(f)
+        a = t.groupby(["regime", "symbol"], sort=False).mean(numeric_only=True)
+        L = []
+        for (reg, sym), r in a.iterrows():
+            L.append(f"{reg} & {sym.replace('USDT', '/USDT')} & {r.n_agg / 1e6:.2f} & {r.median_trade_usd:,.0f} & "
+                     f"{pct(r.pingpong_trades, 1)} & {pct(r.pingpong_volume, 1)} & {pct(r.two_sided_1s, 0)} & "
+                     f"{pct(r.two_sided_1m, 0)}{NL}")
+        hdr = ("Days & Pair & Trades (M/day) & Median trade (\\$) & Round trips: trades & volume & "
+               "Two-sided, 1s & Two-sided, 1m")
+        write("tab_trade_forensics", tab("llrrrrrr", hdr, L))
+        for reg, R in [("fees (before removal)", "A"), ("zero fees (after removal)", "B"),
+                       ("zero fees (before restoration)", "C"), ("fees (after restoration)", "D")]:
+            for sym, S in [("BTCUSDT", "Btc"), ("ETHUSDT", "Eth")]:
+                if (reg, sym) in a.index:
+                    r = a.loc[(reg, sym)]
+                    macro(f"tf{S}Ping{R}", pct(r.pingpong_trades, 1))
+                    macro(f"tf{S}PingVol{R}", pct(r.pingpong_volume, 1))
+                    macro(f"tf{S}TwoSec{R}", pct(r.two_sided_1s, 0))
+                    macro(f"tf{S}Size{R}", f"{r.median_trade_usd:,.0f}")
+                    macro(f"tf{S}N{R}", f"{r.n_agg / 1e6:.1f}")
+        e = t[t.symbol == "ETHUSDT"]
+        macro("tfEthTwoSecMin", pct(e.two_sided_1s.min(), 0)); macro("tfEthTwoSecMax", pct(e.two_sided_1s.max(), 0))
+        b = t[t.symbol == "BTCUSDT"]
+        macro("tfBtcPingVolMax", pct(b.pingpong_volume.max(), 1))
+
+
+def fig_fee_copy():
+    """Copy the fee-experiment figures next to the paper."""
+    import shutil
+    for src in (RES / "FEE" / "figures", RES / "PANEL" / "figures"):
+        if src.exists():
+            (ROOT / "paper" / "figures").mkdir(exist_ok=True)
+            for p in src.glob("*.png"):
+                shutil.copy(p, ROOT / "paper" / "figures" / p.name)
+                print("copied", p.name)
+
+
+def panel_tables():
+    d = RES / "PANEL"
+    if not (d / "table_panel.csv").exists():
+        print("skip panel_tables (run run_panel.py)")
+        return
+    t = pd.read_csv(d / "table_panel.csv").sort_values("median_dvol_musd", ascending=False)
+    po = pd.read_csv(d / "pooled_response.csv", index_col=0)["value"]
+    L = []
+    for _, r in t.iterrows():
+        L.append(f"{r.symbol.replace('USDT', '')} & {r.median_dvol_musd:,.1f} & {fnum(r.corr_bvc_1h, 2)} & "
+                 f"{fnum(r.corr_bvc1m_1h, 2)} & {fnum(r.ceil_is_1h, 2)} & {fnum(r.ceil_is_1m, 2)} & "
+                 f"{fnum(r.corr_gk_rv, 2)} & {fnum(r.cs_median_bps / r.tick_bps, 0)} & "
+                 f"{fnum(r.fr_taker_b2, 2)} ({fnum(r.fr_taker_t2, 1)}) & {fnum(r.fr_joint_b2, 2)} ({fnum(r.fr_joint_t2, 1)}) & "
+                 f"{_p(r.sp_taker_cwp_2)}{NL}")
+    L.append("\\midrule\n")
+    for lab, fn in [("Median", "median"), ("Min", "min"), ("Max", "max")]:
+        s = getattr(t.select_dtypes("number"), fn)()
+        L.append(f"{lab} & {s.median_dvol_musd:,.1f} & {fnum(s.corr_bvc_1h, 2)} & {fnum(s.corr_bvc1m_1h, 2)} & "
+                 f"{fnum(s.ceil_is_1h, 2)} & {fnum(s.ceil_is_1m, 2)} & {fnum(s.corr_gk_rv, 2)} & "
+                 f"{fnum(getattr(t.cs_median_bps / t.tick_bps, fn)(), 0)} & {fnum(s.fr_taker_b2, 2)} & {fnum(s.fr_joint_b2, 2)} & {NL}")
+    hdr = ("Coin & \\$vol & \\multicolumn{2}{c}{corr(BVC, observed)} & \\multicolumn{2}{c}{Ceiling} & corr(GK, & CS / & "
+           f"\\multicolumn{{2}}{{c}}{{2h response to 1 SD flow, bps ($t$)}} & SP{NL}"
+           "\\cmidrule(lr){3-4}\\cmidrule(lr){5-6}\\cmidrule(lr){9-10}"
+           " & \\$M/h & 1h bars & 1m bars & 1h & 1m & RV) & tick & observed & given $z_t$ & CW $p$")
+    write("tab_panel", tab("lrrrrrrrrrr", hdr, L))
+    n = len(t)
+    macro("panelN", str(n))
+    macro("panelVolMin", f"{t.median_dvol_musd.min():,.1f}")
+    macro("panelVolMax", f"{t.median_dvol_musd.max():,.0f}")
+    for col, K, dgt in [("corr_bvc_1h", "Corr", 2), ("corr_bvc1m_1h", "CorrM", 2), ("ceil_is_1h", "Ceil", 2),
+                        ("ceil_is_1m", "CeilM", 2), ("corr_gk_rv", "Gk", 2), ("ceil_oos_1h", "CeilOos", 2),
+                        ("corr_lambda", "Lam", 2), ("slope_imb_on_bvc_1h", "Slope", 2)]:
+        macro(f"panel{K}Med", fnum(t[col].median(), dgt))
+        macro(f"panel{K}Min", fnum(t[col].min(), dgt))
+        macro(f"panel{K}Max", fnum(t[col].max(), dgt))
+    srt = t.sort_values("ceil_is_1h", ascending=False)
+    macro("panelCeilMaxCoin", srt.symbol.iloc[0].replace("USDT", ""))
+    macro("panelCeilSecond", fnum(srt.ceil_is_1h.iloc[1], 2))
+    macro("panelCorrSecond", fnum(t.sort_values("corr_bvc_1h", ascending=False).corr_bvc_1h.iloc[1], 2))
+    pos = t[t.fr_taker_t2 > 1.96].symbol.str.replace("USDT", "").tolist()
+    macro("panelSigPosCoins", ", ".join(pos) if pos else "none")
+    ratio = t.cs_median_bps / t.tick_bps
+    macro("panelCsTickMin", f"{ratio.min():,.0f}"); macro("panelCsTickMax", f"{ratio.max():,.0f}")
+    macro("panelCsTickMed", f"{ratio.median():,.0f}")
+    macro("panelCeilAbove", str(int((t.ceil_is_1h > 0.5).sum())))
+    for k in (1, 2, 4):
+        w = HW[k]
+        for tag, T in [("all_cfe", "All"), ("exbtc_cfe", "Ex"), ("all_tfe", "AllT"), ("exbtc_tfe", "ExT")]:
+            macro(f"pool{T}B{w}", fnum(po[f"{tag}_k{k}_b"], 2))
+            macro(f"pool{T}T{w}", fnum(po[f"{tag}_k{k}_t"], 1))
+        macro(f"poolMkt{w}", fnum(po[f"decomp_b_market_k{k}"], 2)); macro(f"poolMktT{w}", fnum(po[f"decomp_t_market_k{k}"], 1))
+        macro(f"poolCoin{w}", fnum(po[f"decomp_b_coin_k{k}"], 2)); macro(f"poolCoinT{w}", fnum(po[f"decomp_t_coin_k{k}"], 1))
+        macro(f"panelNneg{w}", str(int(po[f"n_negative_{k}"])))
+        macro(f"panelNsigNeg{w}", str(int(po[f"n_sig_negative_{k}"])))
+        macro(f"panelNsigPos{w}", str(int(po[f"n_sig_positive_{k}"])))
+        macro(f"panelSignP{w}", _p(po[f"sign_test_p_{k}"]))
+    macro("panelSpSig", str(int(po["n_sp_taker_sig"])))
+    macro("panelSpBvcSig", str(int(po["n_sp_bvc_sig"])))
 
 
 def misc_macros():
@@ -510,8 +764,8 @@ def fig_fee_regime():
             df = load_ohlcv(p, verbose=False)
             w = df["trades"].resample("W").median() / 1e3
             ax.plot(w.index, w.values, color=col, lw=1.1, label=sym.replace("USDT", "/USDT"))
-    ax.axvspan(pd.Timestamp("2022-07-08", tz="UTC"), pd.Timestamp("2023-03-22", tz="UTC"), color="0.85", lw=0,
-               label="BTC zero-fee promotion")
+    from msr.events import ZERO_FEE_OFF, ZERO_FEE_ON
+    ax.axvspan(ZERO_FEE_ON, ZERO_FEE_OFF, color="0.85", lw=0, label="BTC zero-fee promotion")
     ax.set_yscale("log")
     ax.set_ylabel("trades per hour (000s)")
     ax.spines[["top", "right"]].set_visible(False)
@@ -540,5 +794,8 @@ if __name__ == "__main__":
     single_trading_table()
     response_controls_table()
     ceiling_tables()
+    fee_tables()
+    fig_fee_copy()
+    panel_tables()
     misc_macros()
     write_macros()

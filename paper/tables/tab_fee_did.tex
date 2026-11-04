@@ -1,0 +1,28 @@
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+ & \multicolumn{3}{c}{BTC/USDT, daily median} & \multicolumn{3}{c}{Fees removed} & \multicolumn{3}{c}{Fees restored}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}Measure & Before & Zero fee & After & $\Delta$ ($t$) & $p_{\text{space}}$ & $p_{\text{time}}$ & $\Delta$ ($t$) & $p_{\text{space}}$ & $p_{\text{time}}$\\
+\midrule
+\multicolumn{10}{l}{\emph{Panel A. Trading activity}}\\
+Trades per day (millions) & 1.12 & 5.74 & 0.82 & 1.68 (12.2) & 0.050 & 0.008 & \ensuremath{-}1.68 (\ensuremath{-}18.1) & 0.050 & 0.008\\
+Dollar volume per day (\$bn) & 1.78 & 4.73 & 1.05 & 1.21 (5.9) & 0.100 & 0.008 & \ensuremath{-}1.18 (\ensuremath{-}11.2) & 0.050 & 0.008\\
+Average trade size (\$) & 1,566 & 826 & 1,259 & \ensuremath{-}0.46 (\ensuremath{-}4.3) & 0.100 & 0.081 & 0.50 (7.5) & 0.050 & 0.073\\
+\multicolumn{10}{l}{\emph{Panel B. Direction of the volume (one-minute taker flow)}}\\
+Directional volume $\sum_m|B_m-S_m|$ (\$bn) & 0.44 & 0.55 & 0.36 & 0.43 (3.3) & 0.200 & 0.185 & \ensuremath{-}0.27 (\ensuremath{-}3.1) & 0.350 & 0.565\\
+Two-sided volume (\$bn) & 1.35 & 4.20 & 0.70 & 1.43 (6.0) & 0.100 & 0.008 & \ensuremath{-}1.33 (\ensuremath{-}12.0) & 0.050 & 0.008\\
+Two-sided share of volume & 0.74 & 0.88 & 0.66 & 0.16 (6.2) & 0.050 & 0.008 & \ensuremath{-}0.15 (\ensuremath{-}8.9) & 0.050 & 0.008\\
+Mean $|$hourly taker imbalance$|$ & 0.065 & 0.023 & 0.086 & \ensuremath{-}1.03 (\ensuremath{-}9.3) & 0.050 & 0.008 & 1.15 (21.3) & 0.050 & 0.008\\
+\multicolumn{10}{l}{\emph{Panel C. Liquidity and flow measures computed from bars}}\\
+Amihud ratio, hourly bars ($|r|$ per \$bn) & 0.064 & 0.013 & 0.052 & \ensuremath{-}1.18 (\ensuremath{-}6.9) & 0.100 & 0.008 & 1.52 (21.8) & 0.050 & 0.008\\
+Kyle's $\lambda$, BVC-signed flow (bps per \$M) & 3.81 & 1.53 & 3.05 & \ensuremath{-}0.39 (\ensuremath{-}3.1) & 0.150 & 0.032 & 0.97 (15.2) & 0.050 & 0.008\\
+VPIN, BVC & 0.50 & 0.45 & 0.47 & \ensuremath{-}0.10 (\ensuremath{-}4.7) & 0.050 & 0.008 & 0.11 (5.1) & 0.050 & 0.008\\
+\multicolumn{10}{l}{\emph{Panel D. The same quantities from observed taker flow}}\\
+Kyle's $\lambda$, observed flow (bps per \$M) & 6.29 & 5.55 & 5.90 & 0.24 (1.4) & 0.400 & 0.435 & 0.30 (4.1) & 0.250 & 0.290\\
+VPIN, observed flow & 0.069 & 0.023 & 0.083 & \ensuremath{-}1.08 (\ensuremath{-}8.8) & 0.050 & 0.008 & 1.11 (23.1) & 0.050 & 0.008\\
+$R^2$ of 1m returns on observed flow & 0.24 & 0.41 & 0.40 & 0.13 (5.2) & 0.050 & 0.008 & \ensuremath{-}0.06 (\ensuremath{-}3.8) & 0.050 & 0.081\\
+corr(BVC, observed imbalance), 1m & 0.50 & 0.59 & 0.61 & 0.05 (4.1) & 0.150 & 0.008 & \ensuremath{-}0.05 (\ensuremath{-}6.2) & 0.100 & 0.008\\
+\multicolumn{10}{l}{\emph{Panel E. Prices}}\\
+Realised volatility (\% per day) & 3.05 & 2.42 & 1.76 & 0.15 (1.4) & 0.900 & 0.742 & 0.48 (1.9) & 0.150 & 0.169\\
+First-order autocorrelation of 1m returns & 0.012 & \ensuremath{-}0.002 & 0.016 & \ensuremath{-}0.01 (\ensuremath{-}0.5) & 0.850 & 0.677 & 0.02 (2.0) & 0.250 & 0.306\\
+\bottomrule
+\end{tabular}

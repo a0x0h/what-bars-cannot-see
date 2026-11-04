@@ -1,5 +1,5 @@
 {
-  "asset": "BTCUSDT_1H",
+  "asset": "BTC",
   "source": "BTCUSDT_1h.csv",
   "n_bars": 42360,
   "has_1m": true,
@@ -242,5 +242,5 @@
     }
   ],
   "robustness_done": true,
-  "runtime_sec": 985.4
+  "runtime_sec": 1211.6
 }

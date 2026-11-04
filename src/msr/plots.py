@@ -151,6 +151,107 @@ def fig_validation_by_year(tab, path):
     plt.close(fig)
 
 
+FEE_SHADE = "0.88"
+
+
+def fig_switch_hours(win_on, win_off, path, n_controls=19):
+    """Hourly BTC/USDT vs. control coins around the two fee switches."""
+    fig, axes = plt.subplots(2, 2, figsize=(7.0, 4.4), sharex=True)
+    for j, (w, title) in enumerate([(win_on, "Fees removed: 8 Jul 2022 14:00 UTC"),
+                                    (win_off, "Fees restored: 22 Mar 2023 00:00 UTC")]):
+        ax = axes[0, j]
+        ax.plot(w.index, w["trades_treated"], color="#c4512b", lw=1.1, label="BTC/USDT")
+        ax.plot(w.index, w["trades_controls"], color="#1f5fa8", lw=1.1, label=f"{n_controls} control coins (mean)")
+        ax.axvline(0, color="k", lw=0.7, ls="--")
+        ax.axhline(0, color="k", lw=0.4)
+        ax.set_title(title, fontsize=8.5)
+        ax = axes[1, j]
+        ax.plot(w.index, w["abs_imb_treated_level"], color="#c4512b", lw=1.0)
+        ax.plot(w.index, w["abs_imb_controls_level"], color="#1f5fa8", lw=1.0)
+        ax.axvline(0, color="k", lw=0.7, ls="--")
+        ax.set_xlabel("hours from switch")
+    axes[0, 0].set_ylabel("log trades\n(vs. 72h before)")
+    axes[1, 0].set_ylabel("|taker imbalance|\n(6-hour average)")
+    axes[0, 0].legend(frameon=False, fontsize=7, loc="upper left")
+    for ax in axes.ravel():
+        ax.set_xlim(-72, 72)
+        ax.set_xticks([-72, -48, -24, 0, 24, 48, 72])
+    fig.tight_layout()
+    fig.savefig(path)
+    plt.close(fig)
+
+
+def fig_fee_event_study(es, keys_labels, on, off, path):
+    """Weekly BTC-minus-controls differences relative to the pre-promotion mean (log points)."""
+    n = len(keys_labels)
+    ncol = 2
+    nrow = int(np.ceil(n / ncol))
+    fig, axes = plt.subplots(nrow, ncol, figsize=(7.0, 1.75 * nrow + 0.4), sharex=True)
+    axes = np.atleast_1d(axes).ravel()
+    for ax, (k, lab) in zip(axes, keys_labels):
+        ax.axvspan(on, off, color=FEE_SHADE, lw=0)
+        ax.plot(es.index, es[k], color="#1f5fa8", lw=1.1, marker="o", ms=1.8)
+        ax.axhline(0, color="k", lw=0.5)
+        ax.set_title(lab, fontsize=8.5)
+        _dates(ax)
+    for ax in axes[len(keys_labels):]:
+        ax.set_visible(False)
+    for i in range(0, len(keys_labels), ncol):
+        axes[i].set_ylabel("BTC - controls\n(log, pre = 0)", fontsize=7.5)
+    fig.tight_layout()
+    fig.savefig(path)
+    plt.close(fig)
+
+
+def fig_btc_pairs(pdaily, events, path):
+    """Daily dollar volume and volume-weighted |hourly imbalance| of Binance BTC/stablecoin pairs."""
+    cols = {"BTC/USDT": "#c4512b", "BTC/BUSD": "#e0a07f", "BTC/TUSD": "#1f5fa8", "BTC/FDUSD": "#2a9d8f",
+            "BTC/USDC": "#8a5fb0"}
+    fig, axes = plt.subplots(2, 1, figsize=(7.0, 4.6), sharex=True)
+    for pair, g in pdaily.groupby("pair"):
+        g = g.set_index("day").sort_index()
+        g = g[(g.index >= pd.Timestamp("2022-01-01", tz="UTC")) & (g.index < pd.Timestamp("2024-07-01", tz="UTC"))]
+        if g.empty:
+            continue
+        c = cols.get(pair, "0.4")
+        axes[0].plot(g.index, (g["dvol"] / 1e6).rolling(7, min_periods=3).mean(), color=c, lw=1.1, label=pair)
+        axes[1].plot(g.index, g["vw_abs_imb"].rolling(7, min_periods=3).mean(), color=c, lw=1.1)
+    axes[0].set_yscale("log")
+    axes[0].set_ylabel("dollar volume, $M/day\n(7-day mean, log)")
+    axes[1].set_ylabel("|hourly taker imbalance|\n(volume-weighted, 7-day)")
+    for ax in axes:
+        for t, lab in events:
+            ax.axvline(t, color="k", lw=0.6, ls="--")
+        _dates(ax)
+    ymax = axes[0].get_ylim()[1]
+    for t, lab in events:
+        axes[0].text(t, ymax, " " + lab, fontsize=6.5, va="top", ha="left", rotation=0)
+    axes[0].legend(frameon=False, fontsize=7, ncol=5, loc="lower left")
+    fig.tight_layout()
+    fig.savefig(path)
+    plt.close(fig)
+
+
+def fig_panel_ceiling(t, path):
+    """Information ceiling and squared BVC correlation against trading volume, one point per coin."""
+    fig, ax = plt.subplots(figsize=(6.2, 3.3))
+    x = t["median_dvol_musd"]
+    ax.scatter(x, t["ceil_is_1m"], s=16, color="#2a9d8f", label="ceiling, 1-minute bars", zorder=3)
+    ax.scatter(x, t["ceil_is_1h"], s=16, color="#1f5fa8", label="ceiling, hourly bars", zorder=3)
+    ax.scatter(x, t["corr2_bvc_1h"], s=16, marker="x", color="#c4512b", label="corr$^2$(BVC, observed), hourly",
+               zorder=3)
+    for _, r in t.iterrows():
+        ax.annotate(r["symbol"].replace("USDT", ""), (r["median_dvol_musd"], r["ceil_is_1h"]), fontsize=6,
+                    xytext=(2, -7), textcoords="offset points", color="0.35")
+    ax.set_xscale("log")
+    ax.set_xlabel("median hourly dollar volume ($M, log scale)")
+    ax.set_ylabel("share of variance of observed\nhourly imbalance")
+    ax.set_ylim(0, 0.5)
+    ax.legend(frameon=False, fontsize=7, loc="upper left")
+    fig.savefig(path)
+    plt.close(fig)
+
+
 def fig_flow_response(tab, path):
     fig, ax = plt.subplots(figsize=(5.2, 3.0))
     for spec, reg, col, lab in [("taker", "taker", "#1f5fa8", "observed taker imbalance"),

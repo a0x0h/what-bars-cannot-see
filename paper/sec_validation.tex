@@ -87,14 +87,51 @@ volatility conclusions.
 
 \paragraph{Stability.} The BVC correlation varies between \BTCbvcYearMin{} and \BTCbvcYearMax{}
 across calendar years and is essentially the same in low-, medium- and high-volatility regimes at
-the hourly level (Appendix Table~\ref{tab:regimes}). It is higher during Binance's zero-fee
-promotion on BTC/USDT (8 July 2022 to 22 March 2023), when hourly trade counts rose sharply
-(\BTCbvcZeroFee{} against \BTCbvcStdFee{} under standard fees). The reason is visible in the
-flow itself. During the promotion the standard deviation of hourly taker imbalance on BTC/USDT fell
-to \BTCsdImbZero, from \BTCsdImbStd{} under standard fees: volume rose fivefold but became almost
-perfectly two-sided, which is what costless round-trip trading produces. On ETH/USDT, which kept its
-fees, the dispersion barely changed (\ETHsdImbZero{} against \ETHsdImbStd). With little genuine
-directional flow left, the price change of a bar explains a larger share of what remains. The
-relation between prices and aggressor flow therefore depends on the exchange's fee schedule and on
-the composition of trading it attracts \citep{cong2023}, and data from fee-free periods should be
-treated with care.
+the hourly level (Appendix Table~\ref{tab:regimes}). It is \BTCbvcZeroFee{} during Binance's zero-fee
+promotion on BTC/USDT and \BTCbvcStdFee{} under standard fees. The promotion changed the flow itself:
+the standard deviation of hourly taker imbalance on BTC/USDT fell to \BTCsdImbZero{} from
+\BTCsdImbStd{} under standard fees, while on ETH/USDT, which kept its fees, it barely changed
+(\ETHsdImbZero{} against \ETHsdImbStd). Section~\ref{sec:fee} studies this episode in detail.
+
+\subsection{Twenty coins}\label{sec:panel}
+
+Table~\ref{tab:panel} and Figure~\ref{fig:panelceiling} repeat the main measurement statistics for
+all twenty coins. In nineteen of them the hourly bar reveals at most about a quarter of the variation
+in aggressor flow. The correlation of hourly BVC with observed imbalance has a median of
+\panelCorrMed{} and lies between \panelCorrMin{} and \panelCorrSecond, and the in-sample information
+ceiling of return-based classification on hourly bars lies between \panelCeilMin{} and
+\panelCeilSecond. The exception is \panelCeilMaxCoin, with a correlation of \panelCorrMax{} and a ceiling
+of \panelCeilMax. The ceiling is highest for the most traded coins and lower for smaller coins, whose
+coarser relative ticks make hourly returns less informative; computed on one-minute bars, BVC is more
+uniform across coins (correlation between \panelCorrMMin{} and \panelCorrMMax). In every coin the squared BVC correlation is close to the
+ceiling, so the BVC map is near the best a return-based classifier can do. Range-based volatility has
+a correlation between \panelGkMin{} and \panelGkMax{} with realised volatility, and the median
+Corwin-Schultz spread is between \panelCsTickMin{} and \panelCsTickMax{} ticks. That most hourly
+aggressor imbalance leaves no trace in the bar's price is therefore not a feature of one market but a
+regularity of this trading environment, and it is strongest where trading is thinnest.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.75\textwidth]{fig_panel_ceiling.png}
+\caption{Information ceiling of return-based classification (in-sample $R^2$ of observed hourly
+imbalance on 50 bins of the standardised bar return) on hourly and one-minute bars, and squared
+correlation of hourly BVC with observed imbalance, against median hourly dollar volume. One point per
+coin, January 2022 to October 2026.}
+\label{fig:panelceiling}
+\end{figure}
+
+\begin{table}[t]
+\centering\caption{Measurement and flow response across twenty coins}\label{tab:panel}
+\resizebox{\textwidth}{!}{\input{tables/tab_panel}}
+\tabnote{Binance USDT pairs, January 2022 to October 2026, sorted by median hourly dollar volume
+(\$vol, \$ million). corr(BVC, observed): correlation of BVC imbalance with observed hourly taker
+imbalance, BVC computed on hourly bars or on one-minute bars and summed to the hour. Ceiling:
+in-sample information ceiling of return-based classifiers, $R^2$ of observed imbalance on 50
+quantile bins of the standardised bar return, on hourly and one-minute bars. corr(GK, RV): log
+Garman-Klass volatility from hourly bars against log realised volatility from one-minute returns,
+24-hour windows. CS / tick: median 24-hour Corwin-Schultz spread in multiples of the relative tick.
+2h response: regression~\eqref{eq:response} at $k=2$ hours (basis points per standard deviation of
+observed imbalance, Newey-West $t$-statistic), alone and holding the bar return fixed. SP CW $p$:
+Clark-West $p$-value of the single-predictor out-of-sample test with observed imbalance at two
+hours.}
+\end{table}

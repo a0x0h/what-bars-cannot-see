@@ -6,6 +6,13 @@ Run once on your own machine (standard library only, pandas optional):
     python scripts/download_binance.py --start 2024-07   # shorter history
     python scripts/download_binance.py --aggtrades 2026-08 2026-09 2026-10   # + trade-level sample (needs pandas)
 
+    # control panel for the zero-fee natural experiment (USDT pairs with standard fees throughout)
+    python scripts/download_binance.py --outdir data/raw/panel --symbols ETHUSDT BNBUSDT XRPUSDT ADAUSDT \
+        SOLUSDT DOGEUSDT LTCUSDT TRXUSDT LINKUSDT DOTUSDT AVAXUSDT BCHUSDT ATOMUSDT ETCUSDT XLMUSDT \
+        UNIUSDT FILUSDT NEARUSDT ALGOUSDT BTCUSDT
+    # other BTC pairs (where the zero-fee volume went), hourly only
+    python scripts/download_binance.py --outdir data/raw/pairs --no-1m --symbols BTCBUSD BTCTUSD BTCFDUSD BTCUSDC
+
 Outputs (data/raw):
     BTCUSDT_1h.csv        hourly klines incl. trade count and taker-buy volume
     BTCUSDT_1m.csv.gz     1-minute klines (same columns), gzip
@@ -79,8 +86,9 @@ def to_ms(ts: str) -> int:
     return v // 1000 if v > 10**14 else v
 
 
-def download_klines(symbol: str, interval: str, start: str, end: str):
-    out = RAW / (f"{symbol}_{interval}.csv" + (".gz" if interval == "1m" else ""))
+def download_klines(symbol: str, interval: str, start: str, end: str, outdir: Path = RAW):
+    outdir.mkdir(parents=True, exist_ok=True)
+    out = outdir / (f"{symbol}_{interval}.csv" + (".gz" if interval == "1m" else ""))
     opener = gzip.open if interval == "1m" else open
     missing, n = [], 0
     with opener(out, "wt", newline="") as fo:
@@ -156,14 +164,17 @@ def main():
     ap.add_argument("--end", default=last_full_month())
     ap.add_argument("--no-1m", action="store_true")
     ap.add_argument("--aggtrades", nargs="*", default=[], help="months like 2026-09 (BTC only)")
+    ap.add_argument("--outdir", type=Path, default=RAW,
+                    help="where the CSVs go; the panel and other BTC pairs use data/raw/panel and data/raw/pairs "
+                         "so that run_all.py (which reads data/raw) only sees BTC and ETH")
     a = ap.parse_args()
     RAW.mkdir(parents=True, exist_ok=True)
-    print(f"Downloading {a.symbols} {a.start}..{a.end} into {RAW}")
+    print(f"Downloading {a.symbols} {a.start}..{a.end} into {a.outdir}")
     try:
         for s in a.symbols:
-            download_klines(s, "1h", a.start, a.end)
+            download_klines(s, "1h", a.start, a.end, a.outdir)
             if not a.no_1m:
-                download_klines(s, "1m", a.start, a.end)
+                download_klines(s, "1m", a.start, a.end, a.outdir)
         if a.aggtrades:
             download_aggtrades_hourly(a.symbols[0], a.aggtrades)
     except urllib.error.URLError as e:

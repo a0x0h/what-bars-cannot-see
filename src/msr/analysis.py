@@ -4,6 +4,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from .events import zero_fee_mask
 from .inference import clark_west, ic_with_ci, nw_lags, predictive_regression, r2_oos
 from .walkforward import walk_forward
 
@@ -18,9 +19,8 @@ def regime_labels(X: pd.DataFrame, index) -> pd.DataFrame:
     hr = index.hour
     lab["session"] = np.select([hr < 8, hr < 16], ["Asia 00-08", "Europe 08-16"], "US 16-24")
     lab["weekend"] = np.where(index.dayofweek >= 5, "weekend", "weekday")
-    # Binance zero-fee promotion on BTC/USDT: 2022-07-08 to 2023-03-22 (calendar dates, known ex ante)
-    zf = (index >= pd.Timestamp("2022-07-08", tz="UTC")) & (index < pd.Timestamp("2023-03-22", tz="UTC"))
-    lab["fee_regime"] = np.where(zf, "zero-fee (BTC/USDT promo)", "standard fees")
+    # Binance zero-fee promotion on BTC/USDT (announced in advance, so known ex ante)
+    lab["fee_regime"] = np.where(zero_fee_mask(index), "zero-fee (BTC/USDT promo)", "standard fees")
     return lab
 
 
@@ -137,7 +137,7 @@ def flow_response(df: pd.DataFrame, X: pd.DataFrame, horizons=tuple(range(1, 25)
 def flow_response_splits(df: pd.DataFrame, X: pd.DataFrame, horizons=(1, 2, 4, 8)) -> pd.DataFrame:
     """Stability of the flow response across fee regimes and sample halves."""
     t = X.index
-    zf = (t >= pd.Timestamp("2022-07-08", tz="UTC")) & (t < pd.Timestamp("2023-03-22", tz="UTC"))
+    zf = zero_fee_mask(t)
     mid = pd.Timestamp("2024-07-01", tz="UTC")
     splits = {"Full sample": np.ones(len(t), bool), "Standard fees": ~zf, "Zero-fee window": zf,
               "Jan 2022 - Jun 2024": t < mid, "Jul 2024 - Oct 2026": t >= mid}

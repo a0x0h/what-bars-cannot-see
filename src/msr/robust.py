@@ -19,6 +19,7 @@ import pandas as pd
 import statsmodels.api as sm
 from scipy.stats import norm
 
+from .events import zero_fee_mask
 from .inference import clark_west, nw_lags, r2_oos
 from .walkforward import make_folds
 
@@ -173,7 +174,7 @@ def ceiling_in_sample(df: pd.DataFrame, m1: pd.DataFrame | None = None, n_bins: 
         d = pd.DataFrame({"z": z, "imb": (2 * taker - v) / (v + EPS), "bvc": 2 * norm.cdf(z) - 1, "v": v}).dropna()
         d = d[d["v"] > 0]
         t = d.index
-        zf = (t >= pd.Timestamp("2022-07-08", tz="UTC")) & (t < pd.Timestamp("2023-03-22", tz="UTC"))
+        zf = zero_fee_mask(t)
         periods = {"full sample": np.ones(len(d), bool), "zero-fee window": zf, "standard fees": ~zf}
         for y in sorted(set(t.year)):
             periods[str(y)] = t.year == y

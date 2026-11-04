@@ -1,0 +1,18 @@
+{
+  "on": {
+    "trades": 1.3012563756958593,
+    "dvol": 1.4474620715166533,
+    "abs_imb": -1.3089892713312477
+  },
+  "off": {
+    "trades": -1.5270730418330243,
+    "dvol": -0.9986038194977525,
+    "abs_imb": 0.5175210677119715
+  },
+  "placebo_trades_abs_p99": 0.6787665910991377,
+  "placebo_trades_abs_max": 0.9331307878075799,
+  "n_placebo_hours_trades": 991,
+  "placebo_abs_imb_abs_p99": 0.9406015077022836,
+  "placebo_abs_imb_abs_max": 1.2939850443031307,
+  "n_placebo_hours_abs_imb": 991
+}

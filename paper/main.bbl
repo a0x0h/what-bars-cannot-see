@@ -1,9 +1,16 @@
-\begin{thebibliography}{40}
+\begin{thebibliography}{56}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abadie et~al.(2010)Abadie, Diamond, and Hainmueller]{abadie2010}
+Alberto Abadie, Alexis Diamond, and Jens Hainmueller.
+\newblock Synthetic control methods for comparative case studies: Estimating
+  the effect of {C}alifornia's tobacco control program.
+\newblock \emph{Journal of the American Statistical Association}, 105\penalty0
+  (490):\penalty0 493--505, 2010.
 
 \bibitem[Abdi and Ranaldo(2017)]{abdi2017}
 Farshid Abdi and Angelo Ranaldo.
@@ -18,6 +25,12 @@ Saketh Aleti and Bruce Mizrach.
 \newblock \emph{Journal of Futures Markets}, 41\penalty0 (2):\penalty0
   194--225, 2021.
 
+\bibitem[Aloosh and Li(2024)]{aloosh2024}
+Arash Aloosh and Jiasun Li.
+\newblock Direct evidence of bitcoin wash trading.
+\newblock \emph{Management Science}, 70\penalty0 (12):\penalty0 8875--8921,
+  2024.
+
 \bibitem[Amaya et~al.(2015)Amaya, Christoffersen, Jacobs, and
   Vasquez]{amaya2015}
 Diego Amaya, Peter Christoffersen, Kris Jacobs, and Aurelio Vasquez.
@@ -30,6 +43,13 @@ Yakov Amihud.
 \newblock Illiquidity and stock returns: Cross-section and time-series effects.
 \newblock \emph{Journal of Financial Markets}, 5\penalty0 (1):\penalty0 31--56,
   2002.
+
+\bibitem[Amiram et~al.(2025)Amiram, Lyandres, and Rabetti]{amiram2025}
+Dan Amiram, Evgeny Lyandres, and Daniel Rabetti.
+\newblock Trading volume manipulation and competition among centralized crypto
+  exchanges.
+\newblock \emph{Management Science}, 71\penalty0 (10):\penalty0 8604--8622,
+  2025.
 
 \bibitem[Andersen and Bondarenko(2014)]{andersen2014}
 Torben~G. Andersen and Oleg Bondarenko.
@@ -56,11 +76,24 @@ Jean-Philippe Bouchaud, Julius Bonart, Jonathan Donier, and Martin Gould.
   Microscope}.
 \newblock Cambridge University Press, 2018.
 
+\bibitem[Bozzetto et~al.(2026)Bozzetto, Sifat, and Nahidi]{bozzetto2026}
+Christian Bozzetto, Imtiaz Sifat, and Narmin Nahidi.
+\newblock Fee structure and order flow informativeness in the cryptocurrency
+  market.
+\newblock In \emph{Book chapter, Springer, doi:10.1007/978-3-032-18109-1\_13}.
+  Springer, 2026.
+
 \bibitem[Brauneis et~al.(2021)Brauneis, Mestel, Riordan, and
   Theissen]{brauneis2021}
 Alexander Brauneis, Roland Mestel, Ryan Riordan, and Erik Theissen.
 \newblock How to measure the liquidity of cryptocurrency markets?
 \newblock \emph{Journal of Banking \& Finance}, 124:\penalty0 106041, 2021.
+
+\bibitem[Brauneis et~al.(2022)Brauneis, Mestel, Riordan, and
+  Theissen]{brauneis2022}
+Alexander Brauneis, Roland Mestel, Ryan Riordan, and Erik Theissen.
+\newblock The anatomy of a fee change: Evidence from cryptocurrency markets.
+\newblock \emph{Journal of Empirical Finance}, 67:\penalty0 152--167, 2022.
 
 \bibitem[Campbell and Thompson(2008)]{campbell2008}
 John~Y. Campbell and Samuel~B. Thompson.
@@ -89,11 +122,47 @@ Todd~E. Clark and Kenneth~D. West.
 \newblock \emph{Journal of Econometrics}, 138\penalty0 (1):\penalty0 291--311,
   2007.
 
+\bibitem[{CoinDesk}(2022)]{coindesk2022}
+{CoinDesk}.
+\newblock Binance extends zero-fee bitcoin trading globally.
+\newblock
+  \url{https://www.coindesk.com/business/2022/07/06/binance-extends-zero-fee-bitcoin-trading-globally},
+  2022.
+\newblock 6 July 2022.
+
+\bibitem[{CoinDesk}(2023)]{coindesk2023}
+{CoinDesk}.
+\newblock Binance curb on zero-fee trading may cost market share, boost
+  {TrueUSD} stablecoin: {Kaiko} research head.
+\newblock
+  \url{https://www.coindesk.com/markets/2023/03/22/binance-curb-on-zero-fee-trading-may-cost-market-share-boost-trueusd-stablecoin},
+  2023.
+\newblock 22 March 2023.
+
+\bibitem[Colliard and Foucault(2012)]{colliard2012}
+Jean-Edouard Colliard and Thierry Foucault.
+\newblock Trading fees and efficiency in limit order markets.
+\newblock \emph{Review of Financial Studies}, 25\penalty0 (11):\penalty0
+  3389--3421, 2012.
+
+\bibitem[Colliard and Hoffmann(2017)]{colliard2017}
+Jean-Edouard Colliard and Peter Hoffmann.
+\newblock Financial transaction taxes, market composition, and liquidity.
+\newblock \emph{Journal of Finance}, 72\penalty0 (6):\penalty0 2685--2716,
+  2017.
+
 \bibitem[Cong et~al.(2023)Cong, Li, Tang, and Yang]{cong2023}
 Lin~William Cong, Xi~Li, Ke~Tang, and Yang Yang.
 \newblock Crypto wash trading.
 \newblock \emph{Management Science}, 69\penalty0 (11):\penalty0 6427--6454,
   2023.
+
+\bibitem[Conley and Taber(2011)]{conley2011}
+Timothy~G. Conley and Christopher~R. Taber.
+\newblock Inference with ``difference in differences'' with a small number of
+  policy changes.
+\newblock \emph{Review of Economics and Statistics}, 93\penalty0 (1):\penalty0
+  113--125, 2011.
 
 \bibitem[Cont et~al.(2014)Cont, Kukanov, and Stoikov]{cont2014}
 Rama Cont, Arseniy Kukanov, and Sasha Stoikov.
@@ -107,11 +176,35 @@ Shane~A. Corwin and Paul Schultz.
   prices.
 \newblock \emph{Journal of Finance}, 67\penalty0 (2):\penalty0 719--760, 2012.
 
+\bibitem[{crypto.news}(2023)]{cryptonews2023}
+{crypto.news}.
+\newblock {BTC/TUSD} volume tumbles 88\% as {Binance} removes zero fees.
+\newblock
+  \url{https://crypto.news/btc-tusd-volume-tumbles-88-as-binance-removes-zero-fees/},
+  2023.
+\newblock 12 September 2023.
+
+\bibitem[{Decrypt}(2022)]{decrypt2022}
+{Decrypt}.
+\newblock After bitcoin wash trading surges on {Binance}, {CEO} nixes
+  incentives.
+\newblock
+  \url{https://decrypt.co/104765/after-bitcoin-wash-trading-surges-on-binance-ceo-nixes-incentives},
+  2022.
+\newblock 8 July 2022.
+
 \bibitem[Diebold and Mariano(1995)]{diebold1995}
 Francis~X. Diebold and Roberto~S. Mariano.
 \newblock Comparing predictive accuracy.
 \newblock \emph{Journal of Business \& Economic Statistics}, 13\penalty0
   (3):\penalty0 253--263, 1995.
+
+\bibitem[Driscoll and Kraay(1998)]{driscoll1998}
+John~C. Driscoll and Aart~C. Kraay.
+\newblock Consistent covariance matrix estimation with spatially dependent
+  panel data.
+\newblock \emph{Review of Economics and Statistics}, 80\penalty0 (4):\penalty0
+  549--560, 1998.
 
 \bibitem[Easley et~al.(2012)Easley, L{\'o}pez~de Prado, and O'Hara]{easley2012}
 David Easley, Marcos L{\'o}pez~de Prado, and Maureen O'Hara.
@@ -136,6 +229,17 @@ David Easley, Marcos L{\'o}pez~de Prado, Maureen O'Hara, and Zhibai Zhang.
 David Easley, Maureen O'Hara, Songshan Yang, and Zhibai Zhang.
 \newblock Microstructure and market dynamics in crypto markets.
 \newblock Working paper, SSRN 4814346, 2024.
+
+\bibitem[Foucault et~al.(2013)Foucault, Kadan, and Kandel]{foucault2013}
+Thierry Foucault, Ohad Kadan, and Eugene Kandel.
+\newblock Liquidity cycles and make/take fees in electronic markets.
+\newblock \emph{Journal of Finance}, 68\penalty0 (1):\penalty0 299--341, 2013.
+
+\bibitem[Galati(2024)]{galati2024}
+Luca Galati.
+\newblock Exchange market share, market makers, and murky behavior: The impact
+  of no-fee trading on cryptocurrency market quality.
+\newblock \emph{Journal of Banking \& Finance}, 165:\penalty0 107222, 2024.
 
 \bibitem[Garman and Klass(1980)]{garman1980}
 Mark~B. Garman and Michael~J. Klass.
@@ -215,6 +319,12 @@ Igor Makarov and Antoinette Schoar.
 \newblock Trading and arbitrage in cryptocurrency markets.
 \newblock \emph{Journal of Financial Economics}, 135\penalty0 (2):\penalty0
   293--319, 2020.
+
+\bibitem[Malinova and Park(2015)]{malinova2015}
+Katya Malinova and Andreas Park.
+\newblock Subsidizing liquidity: The impact of make/take fees on market
+  quality.
+\newblock \emph{Journal of Finance}, 70\penalty0 (2):\penalty0 509--536, 2015.
 
 \bibitem[Newey and West(1987)]{newey1987}
 Whitney~K. Newey and Kenneth~D. West.

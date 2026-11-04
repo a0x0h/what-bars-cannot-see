@@ -17,6 +17,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm
 
+from .events import zero_fee_mask
+
 EPS = 1e-12
 
 
@@ -198,8 +200,7 @@ def validation_by_regime(df: pd.DataFrame, X: pd.DataFrame) -> pd.DataFrame:
         p = (bsv.rolling(w).sum() / (v.rolling(w).sum() + EPS)).rename("p")
         t = (true_sv.rolling(w).sum() / (v.rolling(w).sum() + EPS)).rename("t")
         d = pd.concat([p, t], axis=1).dropna()
-        zf = (d.index >= pd.Timestamp("2022-07-08", tz="UTC")) & (d.index < pd.Timestamp("2023-03-22", tz="UTC"))
-        fee = pd.Series(np.where(zf, "zero-fee promo", "standard fees"), index=d.index)
+        fee = pd.Series(np.where(zero_fee_mask(d.index), "zero-fee promo", "standard fees"), index=d.index)
         for key, grp in [("volatility", lab.reindex(d.index)), ("year", pd.Series(d.index.year.astype(str), index=d.index)),
                          ("fee_regime", fee)]:
             for g, sub in d.groupby(grp):

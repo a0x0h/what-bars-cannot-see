@@ -75,6 +75,24 @@ volatility and the previous hour's imbalance; (5) uses one-minute BVC imbalance 
 observed and one-minute BVC imbalance together.}
 \end{table}
 
+\paragraph{Twenty coins.} The last columns of Table~\ref{tab:panel} report the two-hour response for
+every coin. The coefficient on observed imbalance is negative for \panelNnegtwo{} of the \panelN{}
+coins, significantly so at the 5\% level for \panelNsigNegtwo{}, and significantly positive for
+\panelNsigPostwo{} (\panelSigPosCoins, whose flow is followed by continuation); under symmetry a sign
+pattern this lopsided has a probability of \panelSignPtwo.
+Pooling all coins with coin fixed effects and \citet{driscoll1998} standard errors, which allow for
+any correlation across coins and over time, gives \poolAllBtwo{} basis points per standard deviation
+($t=\poolAllTtwo$), and \poolExBtwo{} ($t=\poolExTtwo$) without bitcoin. The reversal is a market-wide
+phenomenon. When each coin's imbalance is split into the average imbalance of all coins in that hour
+and the coin's deviation from it, a one standard deviation increase in market-wide imbalance is
+followed by a change of \poolMkttwo{} basis points over two hours ($t=\poolMktTtwo$), whereas the
+coin-specific component has a coefficient of \poolCointwo{} ($t=\poolCoinTtwo$). Hours in which
+aggressive buying is broad-based are followed by a partial reversal across the market, consistent
+with liquidity providers absorbing correlated flow at a temporary price concession; flow specific to
+one coin carries no comparable signal. In the single-predictor out-of-sample test of
+Section~\ref{sec:forecast}, observed imbalance is significant at the 5\% level for \panelSpSig{} of
+the \panelN{} coins and hourly BVC imbalance for \panelSpBvcSig.
+
 The magnitude is small. At four hours the observed-imbalance regression explains
 \BTCfrRtwoFour\% of the return variance, and the implied move of one to two basis points per standard
 deviation compares with a standard spot fee of ten basis points per side. Even a perfect measurement
